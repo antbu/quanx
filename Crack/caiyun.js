@@ -4,7 +4,7 @@
 原作：https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/caiyun/caiyun_svip.js
 *******************************
 [rewrite_local]
-https?:\/\/biz\.caiyunapp\.com\/(membership_rights|v2\/user) url script-response-body https://raw.githubusercontent.com/xqa/north-star/main/Crack/caiyun.js
+https?:\/\/biz\.caiyunapp\.com\/(membership_rights|v2\/user) url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/caiyun.js
 [mitm]
 hostname=biz.caiyunapp.com
 **************************/

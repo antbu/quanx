@@ -4,7 +4,7 @@
 时间：2022-9-9
 *******************************
 [rewrite_local]
-^https:\/\/(api|api-cs)\.intsig\.net\/purchase\/cs\/query_property\? url script-response-body https://raw.githubusercontent.com/xqa/north-star/main/Crack/camscanner.js
+^https:\/\/(api|api-cs)\.intsig\.net\/purchase\/cs\/query_property\? url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/camscanner.js
 [mitm]
 hostname = ap*.intsig.net
 *******************************/

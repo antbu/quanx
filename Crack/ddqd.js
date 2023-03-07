@@ -4,7 +4,7 @@
 时间：2022-10-19
 *******************************
 [rewrite_local]
-^https:\/\/(ticktick|dida365)\.com\/api\/v2\/user\/status url script-response-body https://raw.githubusercontent.com/xqa/north-star/main/Crack/ddqd.js
+^https:\/\/(ticktick|dida365)\.com\/api\/v2\/user\/status url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/ddqd.js
 [mitm] 
 hostname=dida365.com,ticktick.com
 *******************************/

@@ -4,7 +4,7 @@
 更新时间：2022-9-22
 *******************************
 [rewrite_local]
-^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$ url script-response-body https://raw.githubusercontent.com/xqa/north-star/main/Crack/mbdt.js
+^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$ url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/mbdt.js
 [mitm] 
 hostname = api.revenuecat.com
 *******************************/

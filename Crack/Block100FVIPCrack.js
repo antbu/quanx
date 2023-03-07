@@ -5,7 +5,7 @@
 原作：https://raw.githubusercontent.com/yqc007/QuantumultX/master/Block100FVIPCrack.js
 *******************************
 [rewrite_local]
-^https?:\/\/tagit\.hyhuo\.com\/cypt\/block100\/get_vip_info$ url script-response-body https://raw.githubusercontent.com/xqa/north-star/main/Crack/Block100FVIPCrack.js
+^https?:\/\/tagit\.hyhuo\.com\/cypt\/block100\/get_vip_info$ url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/Block100FVIPCrack.js
 [mitm] 
 hostname = tagit.hyhuo.com
 *******************************/

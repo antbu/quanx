@@ -4,7 +4,7 @@
 更新时间：2022-11-09
 *******************************
 [rewrite_local]
-^https:\/\/cs\.kuso\.xyz\/ url script-response-body https://raw.githubusercontent.com/xqa/north-star/main/Crack/iScreen.js
+^https:\/\/cs\.kuso\.xyz\/ url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/iScreen.js
 [mitm] 
 hostname = cs.kuso.xyz
 *******************************/
