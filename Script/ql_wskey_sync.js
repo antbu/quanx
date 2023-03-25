@@ -38,7 +38,8 @@ try {
     $.done();
   } else {
     const cookie = `pin=${pin};wskey=${key};`;
-    $.msg("cookie", "", cookie);
+    
+    $.msg("cookie", $.getData("@ql.username"), cookie);
   }
 })()
   .catch((e) => $.logErr(e))
