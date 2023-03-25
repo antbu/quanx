@@ -42,11 +42,9 @@ try {
     $.done();
   } else {
     const cookie = `pin=${pin};wskey=${key};`;
-    $.msg($.name, pin, cookie);
     setQlCookie(cookie, pin)
-      .then((resp) => {
-        $.desc = "上传成功";
-        $.msg($.name, $.subt, resp);
+      .then(() => {
+        $.msg($.name, "", "上传成功");
       })
       .catch((e) => {
         $.msg($.name, "", JSON.stringify(e));
