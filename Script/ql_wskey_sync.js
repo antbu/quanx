@@ -48,6 +48,7 @@ try {
         $.msg($.name, $.subt, resp);
       })
       .catch((e) => {
+        $.msg($.name, "", JSON.stringify(e));
         $.logErr(e)
       });
   }
