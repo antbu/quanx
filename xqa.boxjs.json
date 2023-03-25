@@ -33,6 +33,7 @@
                 }
               ],
             "repo":"http://192.168.2.143:5500/debug.js",
+            "script": "http://192.168.2.143:5500/debug.js",
             "icons": [],
             "author": "@minge",
             "descs_html": ["应用client_id,client_secret请去 设置->应用 中添加相关参数"]
