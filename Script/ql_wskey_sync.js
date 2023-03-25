@@ -4,9 +4,9 @@ let CK = $request.headers["Cookie"] || $request.headers["cookie"];
 let pin, key;
 
 // boxjs setting
-const url = $.getdata("@ql.url");
-const client_id = $.getdata("@ql.client_id");
-const client_secret = $.getdata("@ql.client_secret");
+const url = $.getData("@ql.url");
+const client_id = $.getData("@ql.client_id");
+const client_secret = $.getData("@ql.client_secret");
 
 if (!UA.includes("JD4iPhone") && !UA.includes("%E4%BA%AC%E4%B8%9C")) {
   console.log(`需要在京东App触发`);
