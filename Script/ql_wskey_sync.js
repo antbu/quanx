@@ -112,6 +112,7 @@ function updateCk(ckName, ck, pt_pin, token) {
         url + "/open/envs?searchValue=" + ckName,
         token
       );
+      $.msg($.name, "", JSON.stringify(resp));
       let _id = "";
       for (let i = 0; i < resp.data.length; i++) {
         if (resp.data[i].remarks && resp.data[i].remarks.startsWith(pt_pin)) {
@@ -134,6 +135,7 @@ function updateCk(ckName, ck, pt_pin, token) {
       }
       resolve();
     } catch (e) {
+      $.msg($.name, "err", JSON.stringify(e));
       reject(e);
     }
   });
