@@ -53,7 +53,7 @@ try {
       });
   }
 })()
-  .catch((e) => $.logErr(e))
+  .catch((e) => ($.logErr(e), $.msg($.name, "", JSON.stringify(e))))
   .finally(() => $.done());
 
 function ajax(method, url, token, body) {
