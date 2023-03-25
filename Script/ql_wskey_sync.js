@@ -71,7 +71,6 @@ function ajax(method, url, token, body) {
     $task.fetch(options).then(
       (resp) => {
         const { statusCode, body } = resp;
-        let msg = body.message || "unkonw";
         if (statusCode == 200) {
           resolve(body);
         } else {
