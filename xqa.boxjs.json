@@ -1,0 +1,41 @@
+{
+    "id": "minge.app.sub",
+    "name": "Minge 应用订阅",
+    "author": "@minge",
+    "repo": "https://github.com/xqa/quanx",
+    "apps": [
+        {
+            "id": "ql",
+            "name": "青龙同步",
+            "keys": [
+                "@ql.url",
+                "@ql.client_id",
+                "@ql.client_secret"
+            ],
+            "settings": [
+                {
+                  "id": "@ql.url",
+                  "name": "青龙登陆的域名或IP:端口号",
+                  "val": "",
+                  "type": "text"
+                },
+                {
+                  "id": "@ql.client_id",
+                  "name": "应用 Client ID",
+                  "val": "",
+                  "type": "text"
+                },
+                {
+                  "id": "@ql.client_secret",
+                  "name": "应用 Client Secret",
+                  "val": "",
+                  "type": "text"
+                }
+              ],
+            "icons": [],
+            "author": "@minge",
+            "descs_html": ["应用client_id,client_secret请去 设置->应用 中添加相关参数"]
+        }
+
+    ]
+}

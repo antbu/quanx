@@ -3,6 +3,11 @@ const UA = $request.headers["User-Agent"] || $request.headers["user-agent"];
 let CK = $request.headers["Cookie"] || $request.headers["cookie"];
 let pin, key;
 
+// boxjs setting
+const url = $.getdata("@ql.url");
+const client_id = $.getdata("@ql.client_id");
+const client_secret = $.getdata("@ql.client_secret");
+
 if (!UA.includes("JD4iPhone") && !UA.includes("%E4%BA%AC%E4%B8%9C")) {
   console.log(`需要在京东App触发`);
   $.done();
@@ -34,20 +39,138 @@ try {
   if (!pin || !key) {
     $.desc = "未找到 wskey";
     $.msg($.name, $.subt, $.desc);
-
     $.done();
   } else {
     const cookie = `pin=${pin};wskey=${key};`;
-    
-    $.msg("cookie", $.getData("@ql.username"), cookie);
+    setQlCookie(cookie, pin)
+      .then((resp) => {
+        $.desc = "上传成功";
+        $.msg($.name, $.subt, resp);
+      })
+      .catch((e) => {
+        $.desc = "上传失败";
+        $.msg($.name, $.subt, resp);
+      });
   }
 })()
   .catch((e) => $.logErr(e))
   .finally(() => $.done());
 
+function ajax(method, url, token, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      url: url,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: method,
+      body: body,
+    };
+    if (method == "get") {
+      delete options.body;
+    }
+    $task.fetch(options).then(
+      (resp) => {
+        const { statusCode, body } = resp;
+        let msg = body.message || "unkonw";
+        if (statusCode == 200 && body.code == 200) {
+          resolve(body.data);
+        } else {
+          reject(msg);
+        }
+      },
+      (err) => reject(err)
+    );
+  });
+}
+
+function updateToken() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let resp = await ajax(
+        "get",
+        url +
+          "/open/auth/token?client_id=" +
+          clientId +
+          "&client_secret=" +
+          clientSecret
+      );
+      token = resp.data.token;
+      $.setData("@ql.token", token);
+      $.setData("@ql.expiration", resp.data.expiration);
+      resolve(token);
+    } catch (e) {
+      return reject(e);
+    }
+  });
+}
+
+function updateCk(ckName, ck, pt_pin, token) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let resp = await ajax(
+        "get",
+        url + "/open/envs?searchValue=" + ckName,
+        token
+      );
+      let _id = "";
+      for (let i = 0; i < resp.data.length; i++) {
+        if (resp.data[i].remarks && resp.data[i].remarks.startsWith(pt_pin)) {
+          _id = resp.data[i]._id;
+          break;
+        }
+      }
+      if (_id) {
+        await ajax("put", url + "/open/envs", token, {
+          name: ckName,
+          value: ck,
+          remarks: pt_pin + " by 123",
+          _id: _id,
+        });
+        await ajax("put", url + "/open/envs/enable", token, [_id]);
+      } else {
+        await ajax("post", url + "/open/envs", token, [
+          { name: ckName, value: ck, remarks: pt_pin + " by 123" },
+        ]);
+      }
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+function setQlCookie(ck, pt_pin) {
+  return new Promise(async (resolve, reject) => {
+    if (!url || !client_id || !client_secret) {
+      return reject("请先配置QL的URL、client_id、client_secret");
+    }
+    const ckName = "JD_WSCK";
+    const token = $.getData("@ql.token");
+    const expiration = $.getData("@ql.expiration");
+    try {
+      if (!token || expiration < new Date().getTime() / 1000 - 1000) {
+        token = await updateToken();
+      }
+      await updateCk(ckName, ck, pt_pin, token);
+      resolve();
+    } catch (error) {
+      if (e == "UnauthorizedError") {
+        try {
+          token = await updateToken();
+          await updateCk(ckName, ck, pt_pin, token);
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      }
+      return reject(e);
+    }
+  });
+}
+
 // https://github.com/chavyleung/scripts/blob/master/Env.js
 // prettier-ignore
-
 function Env(name, opts) {
   class Http {
     constructor(env) {
