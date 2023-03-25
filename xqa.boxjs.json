@@ -2,7 +2,7 @@
     "id": "minge.app.sub",
     "name": "Minge 应用订阅",
     "author": "@minge",
-    "repo": "https://github.com/xqa/quanx",
+    "repo": "http://192.168.2.143:5500",
     "apps": [
         {
             "id": "ql",
@@ -32,7 +32,6 @@
                   "type": "text"
                 }
               ],
-            "repo":"http://192.168.2.143:5500/debug.js",
             "script": "http://192.168.2.143:5500/debug.js",
             "icons": [],
             "author": "@minge",
