@@ -42,6 +42,7 @@ try {
     $.done();
   } else {
     const cookie = `pin=${pin};wskey=${key};`;
+    $.msg($.name, pin, cookie);
     setQlCookie(cookie, pin)
       .then((resp) => {
         $.desc = "上传成功";
