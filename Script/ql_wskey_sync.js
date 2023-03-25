@@ -48,8 +48,7 @@ try {
         $.msg($.name, $.subt, resp);
       })
       .catch((e) => {
-        $.desc = "上传失败";
-        $.msg($.name, $.subt, resp);
+        $.logErr(e)
       });
   }
 })()
@@ -73,8 +72,8 @@ function ajax(method, url, token, body) {
       (resp) => {
         const { statusCode, body } = resp;
         let msg = body.message || "unkonw";
-        if (statusCode == 200 && body.code == 200) {
-          resolve(body.data);
+        if (statusCode == 200) {
+          resolve(body);
         } else {
           reject(msg);
         }
