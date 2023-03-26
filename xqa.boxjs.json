@@ -1,16 +1,17 @@
 {
-    "id": "minge.app.sub",
-    "name": "Minge 应用订阅",
-    "author": "@minge",
-    "repo": "http://192.168.2.143:5500",
+    "id": "xqa.app.sub",
+    "name": "xqa应用订阅",
+    "author": "@xqa",
+    "repo": "https://github.com/xqa/quanx",
     "apps": [
         {
             "id": "ql",
-            "name": "青龙同步",
+            "name": "京东青龙同步",
             "keys": [
                 "@ql.url",
                 "@ql.client_id",
                 "@ql.client_secret",
+                "@ql.force_update",
                 "@ql.JD_WSCK",
                 "@ql.JD_COOKIE"
             ],
@@ -32,11 +33,19 @@
                   "name": "应用 Client Secret",
                   "val": "",
                   "type": "text"
+                },
+                {
+                  "id": "@ql.force_update",
+                  "name": "强制更新",
+                  "val": false,
+                  "type": "boolean"
                 }
               ],
-            "script": "http://192.168.2.143:5500/debug.js",
-            "icons": [],
-            "author": "@minge",
+            "icons": [
+              "https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/jd.png",
+              "https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png"
+              ],
+            "author": "@xqa",
             "descs_html": ["应用client_id,client_secret请去 设置->应用 中添加相关参数"]
         }
 

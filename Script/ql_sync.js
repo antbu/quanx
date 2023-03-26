@@ -1,176 +1,184 @@
-const $ = new Env("🍪上传 wskey");
-const UA = $request.headers["User-Agent"] || $request.headers["user-agent"];
-let CK = $request.headers["Cookie"] || $request.headers["cookie"];
-let pin, key;
+const $ = new Env("ql_sync");
 
-// boxjs setting
 const url = $.getData("@ql.url");
 const client_id = $.getData("@ql.client_id");
 const client_secret = $.getData("@ql.client_secret");
-
-if (!UA.includes("JD4iPhone") && !UA.includes("%E4%BA%AC%E4%B8%9C")) {
-  console.log(`需要在京东App触发`);
-  $.done();
-}
-
-if (!CK) {
-  console.log(`没有找到CK`);
-  $.done();
-}
-
-try {
-  const pinRegex = /(?:unickName|customer","pin)":"(.+?)"/;
-  if ($response?.body && pinRegex.test($response?.body)) {
-    pin = $response?.body.match(pinRegex)?.[1];
-  }
-  if (pin) {
-    pin = encodeURIComponent(pin);
-  } else {
-    pin = CK.match(/pin=([^=;]+?);/)?.[1];
-  }
-  key = CK.match(/wskey=([^=;]+?);/)?.[1];
-} catch (error) {
-  console.log(error);
-
-  $.done();
-}
+const force_update = $.getData("@ql.force_update") || false;
 
 !(async () => {
-  if (!pin || !key) {
-    $.desc = "未找到 wskey";
-    $.msg($.name, $.subt, $.desc);
-    $.done();
-  } else {
-    const cookie = `pin=${pin};wskey=${key};`;
-    setQlCookie(cookie, pin)
-      .then(() => {
-        $.msg($.name, "", "上传成功");
-      })
-      .catch((e) => {
-        $.msg($.name, "", JSON.stringify(e));
-        $.logErr(e)
-      });
+  if (!url || !client_id || !client_secret) {
+    $.logErr('请先配置 boxjs 数据');
+    $.done()
+    return;
   }
+  const ql = new QLSync(url, client_id, client_secret);
+  await GetCookie(ql);
 })()
-  .catch((e) => ($.logErr(e), $.msg($.name, "", JSON.stringify(e))))
+  .catch((e) => ($.logErr(e)))
   .finally(() => $.done());
 
-function ajax(method, url, token, body) {
+
+async function GetCookie(ql) {
+  const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
+
+  if (
+    ($request.url.indexOf('GetJDUserInfoUnion') > -1 &&
+      $request.url.indexOf('isLogin') === -1) ||
+    $request.url.indexOf('openUpgrade') > -1
+  ) {
+    if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
+      const JD_COOKIE = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
+      const up = await Store('JD_COOKIE', JD_COOKIE)
+      if (up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
+    }
+  } else if ($request.url.indexOf('getSessionLog') > -1) {
+    if (CV.match(/wskey=.+?;/) && CV.match(/pin=.+?;/)) {
+      const JD_WSCK = CV.match(/wskey=.+?;/) + CV.match(/pin=.+?;/);
+      const up = await Store('JD_WSCK', JD_WSCK)
+      if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
+    }
+  } else {
+    $.log('未匹配到相关信息，退出抓包');
+  }
+}
+
+async function Store(key, value) {
+  let storeValue = $.getData(`@ql.${key}`) || '';
   return new Promise((resolve, reject) => {
-    const options = {
-      url: url,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      method: method,
-      body: body,
-    };
-    if (method == "get") {
-      delete options.body;
+    if (!storeValue) {
+      $.setData(value, `@ql.${key}`);
+      return resolve(true);
     }
-    $task.fetch(options).then(
-      (resp) => {
-        const { statusCode, body } = resp;
-        if (statusCode == 200) {
-          resolve(body);
-        } else {
-          reject(msg);
-        }
-      },
-      (err) => reject(err)
-    );
-  });
-}
-
-function updateToken() {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let resp = await ajax(
-        "get",
-        url +
-          "/open/auth/token?client_id=" +
-          clientId +
-          "&client_secret=" +
-          clientSecret
-      );
-      token = resp.data.token;
-      $.setData("@ql.token", token);
-      $.setData("@ql.expiration", resp.data.expiration);
-      resolve(token);
-    } catch (e) {
-      return reject(e);
-    }
-  });
-}
-
-function updateCk(ckName, ck, pt_pin, token) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let resp = await ajax(
-        "get",
-        url + "/open/envs?searchValue=" + ckName,
-        token
-      );
-      $.msg($.name, "", JSON.stringify(resp));
-      let _id = "";
-      for (let i = 0; i < resp.data.length; i++) {
-        if (resp.data[i].remarks && resp.data[i].remarks.startsWith(pt_pin)) {
-          _id = resp.data[i]._id;
-          break;
-        }
-      }
-      if (_id) {
-        await ajax("put", url + "/open/envs", token, {
-          name: ckName,
-          value: ck,
-          remarks: pt_pin + " by 123",
-          _id: _id,
-        });
-        await ajax("put", url + "/open/envs/enable", token, [_id]);
+    const storeValueArr = storeValue.split('&');
+    const pin = value.match(/pin=(.+?);/)[1];
+    const found = storeValueArr.find((item) => item.match(/pin=(.+?);/)[1] == pin)
+    if (found) {
+      if (found != value) {
+        storeValueArr[storeValueArr.indexOf(found)] = value;
+        $.setData(storeValueArr.join('&'), `@ql.${key}`);
+        return resolve(true);
       } else {
-        await ajax("post", url + "/open/envs", token, [
-          { name: ckName, value: ck, remarks: pt_pin + " by 123" },
-        ]);
+        return reject(false);
       }
-      resolve();
-    } catch (e) {
-      $.msg($.name, "err", JSON.stringify(e));
-      reject(e);
+    } else {
+      $.setData(storeValue + '&' + value, `@ql.${key}`);
+      return reject(true);
     }
-  });
+
+  })
 }
 
-function setQlCookie(ck, pt_pin) {
-  return new Promise(async (resolve, reject) => {
-    if (!url || !client_id || !client_secret) {
-      return reject("请先配置QL的URL、client_id、client_secret");
+
+
+
+function QLSync(url, clientid, clientsecret) {
+  return new (class {
+    constructor(url, clientid, clientsecret) {
+      this.url = url;
+      this.clientid = clientid;
+      this.clientsecret = clientsecret;
+      this.token = $.getData("@ql.token") || "";
+      this.expiration = $.getData("@ql.expiration") || 0;
+      this.ckName = "";
+      this.remarks = "";
+      this.ckValue = "";
     }
-    const ckName = "JD_WSCK";
-    const token = $.getData("@ql.token");
-    const expiration = $.getData("@ql.expiration");
-    try {
-      if (!token || expiration < new Date().getTime() / 1000 - 1000) {
-        token = await updateToken();
-      }
-      await updateCk(ckName, ck, pt_pin, token);
-      resolve();
-    } catch (error) {
-      if (e == "UnauthorizedError") {
+
+    async ajax(method, url, data, auth = true) {
+      return new Promise((resolve, reject) => {
+        const options = {
+          url: url,
+          method: method,
+          headers: {
+            'Accept': 'application/json',
+          }
+        };
+        if (data) {
+          options.body = $.toStr(data);
+          options.headers['Content-Type'] = 'application/json;charset=UTF-8';
+
+        }
+        if (auth) {
+          options.headers['Authorization'] = `Bearer ${this.token}`;
+        }
+        $task.fetch(options).then(
+          (resp) => {
+            const { statusCode, body } = $.toObj(resp, resp);
+            if (statusCode == 200) {
+              resolve($.toObj(body, body));
+            } else {
+              reject(body?.message);
+            }
+          },
+          (err) => reject(err)
+        );
+      });
+    }
+
+    async updateToken() {
+      return new Promise(async (resolve, reject) => {
         try {
-          token = await updateToken();
-          await updateCk(ckName, ck, pt_pin, token);
+          const resp = await this.ajax("GET", `${this.url}/open/auth/token?client_id=${this.client_id}&client_secret=${this.client_secret}`, false);
+          this.token = resp.data.token;
+          $.setData(this.token, "@ql.token");
+          $.setData(resp.data.expiration, "@ql.expiration");
+          resolve();
+        } catch (e) {
+          return reject(e);
+        }
+      });
+    }
+
+    async updateCk() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const time = new Date().getTime()
+          const resp = await this.ajax("GET", `${this.url}/open/envs?searchValue=${this.ckName}&t=${time}`);
+          let id = resp.data?.find((item) => item.name == this.ckName)?.id;
+          if (id) {
+            await this.ajax("PUT", `${this.url}/open/envs?t=${time}`, {
+              name: this.ckName,
+              value: this.ckValue,
+              id,
+            })
+          } else {
+            await this.ajax("POST", `${this.url}/open/envs?t=${time}`, [{ name: this.ckName, value: this.ckValue, remarks: this.remarks }])
+          }
           resolve();
         } catch (e) {
           reject(e);
         }
-      }
-      return reject(e);
+      });
     }
-  });
+
+    async setQlCookie(ckName, remarks) {
+      this.ckName = ckName;
+      this.remarks = remarks;
+      this.ckValue = $.getData(`@ql.${ckName}`);
+      $.msg($.name, '', `ckName: ${ckName}, remarks: ${remarks}, ckValue: ${this.ckValue}`)
+      try {
+        if (!this.token || this.expiration < new Date().getTime() / 1000 - 1000) {
+          await this.updateToken();
+        }
+        await this.updateCk();
+        return Promise.resolve();
+      } catch (error) {
+        if (e == "UnauthorizedError") {
+          try {
+            await this.updateToken();
+            await this.updateCk();
+            return Promise.resolve();
+          } catch (e) {
+            return Promise.reject(e);
+          }
+        }
+        return Promise.reject(error);
+      }
+    }
+  })(url, clientid, clientsecret)
 }
 
 // https://github.com/chavyleung/scripts/blob/master/Env.js
-// prettier-ignore
 function Env(name, opts) {
   class Http {
     constructor(env) {
@@ -259,7 +267,7 @@ function Env(name, opts) {
       if (val) {
         try {
           json = JSON.parse(this.getData(key));
-        } catch {}
+        } catch { }
       }
       return json;
     }
@@ -460,7 +468,7 @@ function Env(name, opts) {
       }
     }
 
-    get(opts, callback = () => {}) {
+    get(opts, callback = () => { }) {
       if (opts.headers) {
         delete opts.headers['Content-Type'];
         delete opts.headers['Content-Length'];
@@ -521,11 +529,11 @@ function Env(name, opts) {
       }
     }
 
-    post(opts, callback = () => {}) {
+    post(opts, callback = () => { }) {
       const method = opts.method ? opts.method.toLocaleLowerCase() : 'post';
       // 如果指定了请求体, 但没指定`Content-Type`, 则自动生成
       // if (opts.body && // opts.headers && !opts.headers['Content-Type']) {
-        // opts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      // opts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
       //  }
       if (opts.headers) delete opts.headers['Content-Length'];
       if (this.isSurge() || this.isLoon()) {
