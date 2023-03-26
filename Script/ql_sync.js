@@ -29,16 +29,18 @@ async function GetCookie(ql) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const JD_COOKIE = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
       const up = await Store('JD_COOKIE', JD_COOKIE)
-      if (up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
+      if(up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
+    } else {
+      console.log('ck 写入失败，未找到相关 ck');
     }
   } else if ($request.url.indexOf('getSessionLog') > -1) {
     if (CV.match(/wskey=.+?;/) && CV.match(/pin=.+?;/)) {
       const JD_WSCK = CV.match(/wskey=.+?;/) + CV.match(/pin=.+?;/);
       const up = await Store('JD_WSCK', JD_WSCK)
-      if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
+      if(up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
     }
   } else {
-    $.log('未匹配到相关信息，退出抓包');
+    console.log('未匹配到相关信息，退出抓包');
   }
 }
 
@@ -58,11 +60,11 @@ async function Store(key, value) {
         $.setData(storeValueArr.join('&'), `@ql.${key}`);
         return resolve(true);
       } else {
-        return reject(false);
+        return resolve(false);
       }
     } else {
       $.setData(storeValue + '&' + value, `@ql.${key}`);
-      return reject(true);
+      return resolve(true);
     }
 
   })
@@ -155,7 +157,6 @@ function QLSync(url, clientid, clientsecret) {
       this.ckName = ckName;
       this.remarks = remarks;
       this.ckValue = $.getData(`@ql.${ckName}`);
-      $.msg($.name, '', `ckName: ${ckName}, remarks: ${remarks}, ckValue: ${this.ckValue}`)
       try {
         if (!this.token || this.expiration < new Date().getTime() / 1000 - 1000) {
           await this.updateToken();
@@ -179,6 +180,7 @@ function QLSync(url, clientid, clientsecret) {
 }
 
 // https://github.com/chavyleung/scripts/blob/master/Env.js
+// prettier-ignore
 function Env(name, opts) {
   class Http {
     constructor(env) {
