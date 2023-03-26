@@ -10,7 +10,9 @@
             "keys": [
                 "@ql.url",
                 "@ql.client_id",
-                "@ql.client_secret"
+                "@ql.client_secret",
+                "@ql.JD_WSCK",
+                "@ql.JD_COOKIE"
             ],
             "settings": [
                 {
