@@ -1,73 +1,104 @@
 // SSPANEL机场签到
-// SSPANEL环境变量格式，JSON.stringify
 
-const $ = new Env("SSPANEL面板自动签到");
-const notify = require("../sendNotify");
-// let sspanel = ($.isNode() ? process.env.SSPANEL : $.getdata("SSPANEL")) || "",
-message = "";
-
-let sspanel = [
-  {
-    url: "https://www.paofu.cloud/",
-    email: "",
-    password: "",
-  },
-  {
-    url: "https://flyingbird.pro/",
-    email: "",
-    password: "",
-  },
-];
-if (process.env.SSPANEL != undefined) {
-  sspanel = JSON.parse(process.env.SSPANEL);
-}
+const $ = new Env('SSPANEL面板自动签到');
+const notify = $.isNode() ? require('./sendNotify') : '';
+let sspanel = ($.isNode() ? process.env.SSPANEL : $.getdata('SSPANEL')) || '', message = '';
 
 
-Promise.all(sspanel.map(async (sub) => await checkin(sub)))
-  .then(async () => {
+!(async () => {
+    if (!sspanel) {
+        console.log('请先设置环境变量【SSPANEL】')
+        return;
+    }
+    const data = JSON.parse(sspanel)
+    for (let i = 0; i < data.length; i++) {
+        $.index = i + 1;
+        $.SITE_URL = data[i].url// 网站
+        $.email = data.email// 邮箱
+        $.pwd = data.password// 密码
+        console.log("开始第" + ($.index) + "个账号")
+        await main();
+        await $.wait(2000)
+    }
     if (message) {
-      await notify.sendNotify(`${$.name}`, `${message}`);
+        await notify.sendNotify(`${$.name}`, `${message}`);
     }
-  })
-  .catch((err) => $.error(err))
-  .finally(() => {
-    setTimeout(() => {
-      $.done();
-    }, 3000);
-  });
+})().catch((e) => {
+    $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
+}).finally(() => {
+    $.done();
+})
 
-async function checkin(sub) {
-  $.http.post({
-    url: `${sub.url}/auth/login`,
-    body: `email=${sub.email}&passwd=${sub.password}`,
-  }).then((res) => {
-    if (res.statusCode === 200) {
-      $.log(res.body);
-      if (res.body.indexOf("登录成功") > -1) {
-        $.http.post({
-          url: `${sub.url}/user/checkin`,
-        }).then((res) => {
-          if (res.statusCode === 200) {
-            $.log(res.body);
-            if (res.body.indexOf("签到成功") > -1) {
-              message += `【${sub.url}】签到成功\n`;
-            } else {
-              message += `【${sub.url}】签到失败\n`;
-            }
-          } else {
-            message += `【${sub.url}】签到失败\n`;
-          }
-        });
-      } else {
-        message += `【${sub.url}】登录失败\n`;
-      }
-    } else {
-      message += `【${sub.url}】登录失败\n`;
+async function main() {
+    await login();
+    await $.wait(1000);
+    if ($.isRet === 1) {
+        await checkin();
     }
-  })
-
 }
 
+// 登录
+function login() {
+    return new Promise((resolve) => {
+        $.post(sendPost('auth/login', `email=${encodeURIComponent($.email)}&passwd=${encodeURIComponent($.pwd)}&code=`), (err, response, data) => {
+            try {
+                if (err) {
+                    console.log(`login API 请求失败\n${JSON.stringify(err)}`)
+                } else {
+                    data = JSON.parse(data);
+                    console.log(data.msg, '\n');
+                    $.isRet = data.ret;
+                }
+            } catch (err) {
+                $.logErr(err, response);
+            } finally {
+                resolve();
+            }
+        })
+    })
+}
+
+// 签到
+function checkin() {
+    return new Promise((resolve) => {
+        $.post(sendPost('user/checkin', ''), async (err, response, data) => {
+            try {
+                if (err) {
+                    console.log(`checkin API 请求失败\n${JSON.stringify(err)}`)
+                } else {
+                    console.log('开始进行签到...\n');
+                    data = JSON.parse(data);
+                    message += `开始第【${$.index}】个网站\n`;
+                    if (data.ret === 1) {
+                        console.log(`${data.msg}\n`)
+                        message += `${data.msg}\n`;
+                    } else {
+                        console.log(data.msg, '\n');
+                        message += data.msg + '\n';
+                    }
+                }
+            } catch (err) {
+                $.logErr(err, response);
+            } finally {
+                resolve();
+            }
+        })
+    })
+}
+
+function sendPost(path, body = {}) {
+    return {
+        url: `${$.SITE_URL}/${path}`,
+        body: body,
+        headers: {
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Referer": `${$.SITE_URL}/${path}`,
+            "Accept-encoding": "gzip, deflate, br",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62"
+        }
+    }
+}
 
 
 // prettier-ignore
