@@ -1,53 +1,71 @@
 {
-    "id": "xqa.app.sub",
-    "name": "xqa应用订阅",
-    "author": "@xqa",
-    "repo": "https://github.com/xqa/quanx",
-    "apps": [
+  "id": "xqa.app.sub",
+  "name": "xqa应用订阅",
+  "author": "@xqa",
+  "repo": "https://github.com/xqa/quanx",
+  "apps": [
+    {
+      "id": "ql",
+      "name": "京东青龙同步",
+      "keys": [
+        "@ql.url",
+        "@ql.client_id",
+        "@ql.client_secret",
+        "@ql.force_update",
+        "@ql.JD_WSCK",
+        "@ql.JD_COOKIE"
+      ],
+      "settings": [
         {
-            "id": "ql",
-            "name": "京东青龙同步",
-            "keys": [
-                "@ql.url",
-                "@ql.client_id",
-                "@ql.client_secret",
-                "@ql.force_update",
-                "@ql.JD_WSCK",
-                "@ql.JD_COOKIE"
-            ],
-            "settings": [
-                {
-                  "id": "@ql.url",
-                  "name": "青龙登陆的域名或IP:端口号",
-                  "val": "",
-                  "type": "text"
-                },
-                {
-                  "id": "@ql.client_id",
-                  "name": "应用 Client ID",
-                  "val": "",
-                  "type": "text"
-                },
-                {
-                  "id": "@ql.client_secret",
-                  "name": "应用 Client Secret",
-                  "val": "",
-                  "type": "text"
-                },
-                {
-                  "id": "@ql.force_update",
-                  "name": "强制更新",
-                  "val": false,
-                  "type": "boolean"
-                }
-              ],
-            "icons": [
-              "https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/jd.png",
-              "https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png"
-              ],
-            "author": "@xqa",
-            "descs_html": ["应用client_id,client_secret请去 设置->应用 中添加相关参数"]
+          "id": "@ql.url",
+          "name": "青龙登陆的域名或IP:端口号",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "@ql.client_id",
+          "name": "应用 Client ID",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "@ql.client_secret",
+          "name": "应用 Client Secret",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "@ql.force_update",
+          "name": "强制更新",
+          "val": false,
+          "type": "boolean"
         }
-
-    ]
+      ],
+      "icons": [
+        "https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/jd.png",
+        "https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png"
+      ],
+      "author": "@xqa",
+      "descs_html": [
+        "应用client_id,client_secret请去 设置->应用 中添加相关参数"
+      ]
+    }
+  ],
+  "task": [
+    {
+      "config": "37 8-20/3 * * * https://raw.githubusercontent.com/leafTheFish/DeathNote/main/jryc.js, tag=今日越城",
+      "addons": "https://raw.githubusercontent.com/xqa/quanx/main/Rewrite/PullWool.conf, tag=薅羊毛"
+    },
+    {
+      "config": "50 8,20 * * * https://raw.githubusercontent.com/leafTheFish/DeathNote/main/gqcq.js, tag=广汽传祺",
+      "addons": "https://raw.githubusercontent.com/xqa/quanx/main/Rewrite/PullWool.conf, tag=薅羊毛"
+    },
+    {
+      "config": "51 8,21 * * * https://raw.githubusercontent.com/leafTheFish/DeathNote/main/sfsy.js, tag=顺丰速运",
+      "addons": "https://raw.githubusercontent.com/xqa/quanx/main/Rewrite/PullWool.conf, tag=薅羊毛"
+    },
+    {
+      "addons": "https://raw.githubusercontent.com/xqa/quanx/main/Rewrite/jd.conf, tag=京东 Cookie同步"
+    }
+  ]
 }
