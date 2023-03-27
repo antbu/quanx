@@ -50,22 +50,5 @@
         "应用client_id,client_secret请去 设置->应用 中添加相关参数"
       ]
     }
-  ],
-  "task": [
-    {
-      "config": "37 8-20/3 * * * https://raw.githubusercontent.com/leafTheFish/DeathNote/main/jryc.js, tag=今日越城",
-      "addons": "https://raw.githubusercontent.com/xqa/quanx/main/Rewrite/PullWool.conf, tag=薅羊毛"
-    },
-    {
-      "config": "50 8,20 * * * https://raw.githubusercontent.com/leafTheFish/DeathNote/main/gqcq.js, tag=广汽传祺",
-      "addons": "https://raw.githubusercontent.com/xqa/quanx/main/Rewrite/PullWool.conf, tag=薅羊毛"
-    },
-    {
-      "config": "51 8,21 * * * https://raw.githubusercontent.com/leafTheFish/DeathNote/main/sfsy.js, tag=顺丰速运",
-      "addons": "https://raw.githubusercontent.com/xqa/quanx/main/Rewrite/PullWool.conf, tag=薅羊毛"
-    },
-    {
-      "addons": "https://raw.githubusercontent.com/xqa/quanx/main/Rewrite/jd.conf, tag=京东 Cookie同步"
-    }
   ]
 }
