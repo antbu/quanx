@@ -36,12 +36,12 @@ const force_update = $.getData("@ql.force_update") || false;
 
 async function jryc(ql) {
   const jrycAccount = $request.headers['X-SESSION-ID'];
-  const up = await Store('jrycAccount', jrycAccount)
+  const up = await Store1('jrycAccount', jrycAccount)
   if (up || force_update) await ql.setQlCookie('jrycAccount', '今日越城');
 }
 async function gqcq(ql) {
   const gqcqCookie = $request.headers['token'];
-  const up = await Store('gqcqCookie', gqcqCookie)
+  const up = await Store1('gqcqCookie', gqcqCookie)
   if (up || force_update) await ql.setQlCookie('gqcqCookie', '广汽传祺');
 }
 async function sfsy(ql) {
@@ -111,6 +111,27 @@ async function Store(key, value) {
     return resolve(false);
   })
 }
+
+async function Store1(key, value, separate = "&") {
+  let storeValue = $.getData(`@ql.${key}`) || '';
+
+  return new Promise((resolve) => {
+    if (!storeValue) {
+      $.setData(value, `@ql.${key}`);
+      return resolve(true);
+    }
+    const storeValueArr = storeValue.split(separate);
+    const found = storeValueArr.find((item) => item == value)
+    if (found) {
+      return resolve(false);
+    } else {
+      $.setData(storeValue + separate + value, `@ql.${key}`);
+      return resolve(true);
+    }
+
+  })
+}
+
 
 function QLSync(url, clientid, clientsecret) {
   return new (class {
