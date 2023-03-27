@@ -1,105 +1,652 @@
-// SSPANEL机场签到
-
 const $ = new Env('SSPANEL面板自动签到');
 const notify = $.isNode() ? require('./sendNotify') : '';
-let sspanel = ($.isNode() ? process.env.SSPANEL : $.getdata('SSPANEL')) || '', message = '';
+let total = process.env.SITE_ACCOUNTS, totalList = [], message = '';
 
+
+
+
+if (total.indexOf('&') > -1) {
+  totalList = total.split('&');
+} else {
+  totalList = [total];
+}
 
 !(async () => {
-    if (!sspanel) {
-        console.log('请先设置环境变量【SSPANEL】')
-        return;
-    }
-    const data = JSON.parse(sspanel)
-    for (let i = 0; i < data.length; i++) {
-        $.index = i + 1;
-        $.SITE_URL = data[i].url// 网站
-        $.email = data.email// 邮箱
-        $.pwd = data.password// 密码
-        console.log("开始第" + ($.index) + "个账号")
-        await main();
-        await $.wait(2000)
-    }
-    if (message) {
-        await notify.sendNotify(`${$.name}`, `${message}`);
-    }
+  if (!total) {
+    console.log('请先设置环境变量【SITE_ACCOUNTS】')
+    return;
+  }
+  for (let i = 0; i < totalList.length; i++) {
+    $.index = i + 1;
+    // 网站
+    $.SITE_URL = totalList[i].split(',')[0];
+    // 邮箱
+    $.email = totalList[i].split(',')[1].split(':')[0];
+    // 密码
+    $.pwd = totalList[i].split(',')[1].split(':')[1];
+    console.log(`\n*****开始第【${$.index}】个网站****\n`);
+    await main();
+    await $.wait(2000)
+  }
+  if (message) {
+    await notify.sendNotify(`${$.name}`, `${message}`);
+  }
 })().catch((e) => {
-    $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
+  $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
 }).finally(() => {
-    $.done();
+  $.done();
 })
 
 async function main() {
-    await login();
-    await $.wait(1000);
-    if ($.isRet === 1) {
-        await checkin();
-    }
+  await login();
+  await $.wait(1000);
+  if ($.isRet === 1) {
+    await checkin();
+  }
 }
 
-// 登录
+/**
+ * 登录
+ *
+ * @returns {*}
+ */
 function login() {
-    return new Promise((resolve) => {
-        $.post(sendPost('auth/login', `email=${encodeURIComponent($.email)}&passwd=${encodeURIComponent($.pwd)}&code=`), (err, response, data) => {
-            try {
-                if (err) {
-                    console.log(`login API 请求失败\n${JSON.stringify(err)}`)
-                } else {
-                    data = JSON.parse(data);
-                    console.log(data.msg, '\n');
-                    $.isRet = data.ret;
-                }
-            } catch (err) {
-                $.logErr(err, response);
-            } finally {
-                resolve();
-            }
-        })
+  return new Promise((resolve) => {
+    $.post(sendPost('auth/login', `email=${$.email}&passwd=${$.pwd}&code=`), (err, response, data) => {
+      try {
+        if (err) {
+          console.log(`login API 请求失败\n${JSON.stringify(err)}`)
+        } else {
+          data = JSON.parse(data);
+          console.log(data.msg, '\n');
+          $.isRet = data.ret;
+        }
+      } catch (err) {
+        $.logErr(err, response);
+      } finally {
+        resolve();
+      }
     })
+  })
 }
 
-// 签到
+/**
+ * 签到
+ *
+ * @returns {*}
+ */
 function checkin() {
-    return new Promise((resolve) => {
-        $.post(sendPost('user/checkin', ''), async (err, response, data) => {
-            try {
-                if (err) {
-                    console.log(`checkin API 请求失败\n${JSON.stringify(err)}`)
-                } else {
-                    console.log('开始进行签到...\n');
-                    data = JSON.parse(data);
-                    message += `开始第【${$.index}】个网站\n`;
-                    if (data.ret === 1) {
-                        console.log(`${data.msg}\n`)
-                        message += `${data.msg}\n`;
-                    } else {
-                        console.log(data.msg, '\n');
-                        message += data.msg + '\n';
-                    }
-                }
-            } catch (err) {
-                $.logErr(err, response);
-            } finally {
-                resolve();
-            }
-        })
+  return new Promise((resolve) => {
+    $.post(sendPost('user/checkin', ''), async (err, response, data) => {
+      try {
+        if (err) {
+          console.log(`checkin API 请求失败\n${JSON.stringify(err)}`)
+        } else {
+          console.log('开始进行签到...\n');
+          data = JSON.parse(data);
+          message += `开始第【${$.index}】个网站\n`;
+          if (data.ret === 1) {
+              console.log(`${data.msg}\n`)
+              message += `${data.msg}\n\n`;
+          } else {
+            console.log(data.msg, '\n');
+            message += data.msg + '\n\n';
+          }
+        }
+      } catch (err) {
+        $.logErr(err, response);
+      } finally {
+        resolve();
+      }
     })
+  })
 }
 
 function sendPost(path, body = {}) {
-    return {
-        url: `${$.SITE_URL}/${path}`,
-        body: body,
-        headers: {
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Referer": `${$.SITE_URL}/${path}`,
-            "Accept-encoding": "gzip, deflate, br",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62"
-        }
+  return {
+    url: `${$.SITE_URL}/${path}`,
+    body: body,
+    headers: {
+      "Accept": "application/json, text/javascript, */*; q=0.01",
+      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "Referer": `${$.SITE_URL}/${path}`,
+      "Accept-encoding": "gzip, deflate, br",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62"
     }
+  }
 }
 
-
+// https://github.com/chavyleung/scripts/blob/master/Env.js
 // prettier-ignore
-function Env(t, s) { class e { constructor(t) { this.env = t } send(t, s = "GET") { t = "string" == typeof t ? { url: t } : t; let e = this.get; return "POST" === s && (e = this.post), new Promise((s, i) => { e.call(this, t, (t, e, r) => { t ? i(t) : s(e) }) }) } get(t) { return this.send.call(this.env, t) } post(t) { return this.send.call(this.env, t, "POST") } } return new class { constructor(t, s) { this.name = t, this.http = new e(this), this.data = null, this.dataFile = "box.dat", this.logs = [], this.isMute = !1, this.isNeedRewrite = !1, this.logSeparator = "\n", this.encoding = "utf-8", this.startTime = (new Date).getTime(), Object.assign(this, s), this.log("", `\ud83d\udd14${this.name}, \u5f00\u59cb!`) } isNode() { return "undefined" != typeof module && !!module.exports } isQuanX() { return "undefined" != typeof $task } isSurge() { return "undefined" != typeof $environment && $environment["surge-version"] } isLoon() { return "undefined" != typeof $loon } isShadowrocket() { return "undefined" != typeof $rocket } isStash() { return "undefined" != typeof $environment && $environment["stash-version"] } toObj(t, s = null) { try { return JSON.parse(t) } catch { return s } } toStr(t, s = null) { try { return JSON.stringify(t) } catch { return s } } getjson(t, s) { let e = s; const i = this.getdata(t); if (i) try { e = JSON.parse(this.getdata(t)) } catch { } return e } setjson(t, s) { try { return this.setdata(JSON.stringify(t), s) } catch { return !1 } } getScript(t) { return new Promise(s => { this.get({ url: t }, (t, e, i) => s(i)) }) } runScript(t, s) { return new Promise(e => { let i = this.getdata("@chavy_boxjs_userCfgs.httpapi"); i = i ? i.replace(/\n/g, "").trim() : i; let r = this.getdata("@chavy_boxjs_userCfgs.httpapi_timeout"); r = r ? 1 * r : 20, r = s && s.timeout ? s.timeout : r; const [o, h] = i.split("@"), a = { url: `http://${h}/v1/scripting/evaluate`, body: { script_text: t, mock_type: "cron", timeout: r }, headers: { "X-Key": o, Accept: "*/*" } }; this.post(a, (t, s, i) => e(i)) }).catch(t => this.logErr(t)) } loaddata() { if (!this.isNode()) return {}; { this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path"); const t = this.path.resolve(this.dataFile), s = this.path.resolve(process.cwd(), this.dataFile), e = this.fs.existsSync(t), i = !e && this.fs.existsSync(s); if (!e && !i) return {}; { const i = e ? t : s; try { return JSON.parse(this.fs.readFileSync(i)) } catch (t) { return {} } } } } writedata() { if (this.isNode()) { this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path"); const t = this.path.resolve(this.dataFile), s = this.path.resolve(process.cwd(), this.dataFile), e = this.fs.existsSync(t), i = !e && this.fs.existsSync(s), r = JSON.stringify(this.data); e ? this.fs.writeFileSync(t, r) : i ? this.fs.writeFileSync(s, r) : this.fs.writeFileSync(t, r) } } lodash_get(t, s, e) { const i = s.replace(/\[(\d+)\]/g, ".$1").split("."); let r = t; for (const t of i) if (r = Object(r)[t], void 0 === r) return e; return r } lodash_set(t, s, e) { return Object(t) !== t ? t : (Array.isArray(s) || (s = s.toString().match(/[^.[\]]+/g) || []), s.slice(0, -1).reduce((t, e, i) => Object(t[e]) === t[e] ? t[e] : t[e] = Math.abs(s[i + 1]) >> 0 == +s[i + 1] ? [] : {}, t)[s[s.length - 1]] = e, t) } getdata(t) { let s = this.getval(t); if (/^@/.test(t)) { const [, e, i] = /^@(.*?)\.(.*?)$/.exec(t), r = e ? this.getval(e) : ""; if (r) try { const t = JSON.parse(r); s = t ? this.lodash_get(t, i, "") : s } catch (t) { s = "" } } return s } setdata(t, s) { let e = !1; if (/^@/.test(s)) { const [, i, r] = /^@(.*?)\.(.*?)$/.exec(s), o = this.getval(i), h = i ? "null" === o ? null : o || "{}" : "{}"; try { const s = JSON.parse(h); this.lodash_set(s, r, t), e = this.setval(JSON.stringify(s), i) } catch (s) { const o = {}; this.lodash_set(o, r, t), e = this.setval(JSON.stringify(o), i) } } else e = this.setval(t, s); return e } getval(t) { return this.isSurge() || this.isShadowrocket() || this.isLoon() || this.isStash() ? $persistentStore.read(t) : this.isQuanX() ? $prefs.valueForKey(t) : this.isNode() ? (this.data = this.loaddata(), this.data[t]) : this.data && this.data[t] || null } setval(t, s) { return this.isSurge() || this.isShadowrocket() || this.isLoon() || this.isStash() ? $persistentStore.write(t, s) : this.isQuanX() ? $prefs.setValueForKey(t, s) : this.isNode() ? (this.data = this.loaddata(), this.data[s] = t, this.writedata(), !0) : this.data && this.data[s] || null } initGotEnv(t) { this.got = this.got ? this.got : require("got"), this.cktough = this.cktough ? this.cktough : require("tough-cookie"), this.ckjar = this.ckjar ? this.ckjar : new this.cktough.CookieJar, t && (t.headers = t.headers ? t.headers : {}, void 0 === t.headers.Cookie && void 0 === t.cookieJar && (t.cookieJar = this.ckjar)) } get(t, s = (() => { })) { if (t.headers && (delete t.headers["Content-Type"], delete t.headers["Content-Length"]), this.isSurge() || this.isShadowrocket() || this.isLoon() || this.isStash()) this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })), $httpClient.get(t, (t, e, i) => { !t && e && (e.body = i, e.statusCode = e.status ? e.status : e.statusCode, e.status = e.statusCode), s(t, e, i) }); else if (this.isQuanX()) this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, { hints: !1 })), $task.fetch(t).then(t => { const { statusCode: e, statusCode: i, headers: r, body: o } = t; s(null, { status: e, statusCode: i, headers: r, body: o }, o) }, t => s(t && t.error || "UndefinedError")); else if (this.isNode()) { let e = require("iconv-lite"); this.initGotEnv(t), this.got(t).on("redirect", (t, s) => { try { if (t.headers["set-cookie"]) { const e = t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString(); e && this.ckjar.setCookieSync(e, null), s.cookieJar = this.ckjar } } catch (t) { this.logErr(t) } }).then(t => { const { statusCode: i, statusCode: r, headers: o, rawBody: h } = t, a = e.decode(h, this.encoding); s(null, { status: i, statusCode: r, headers: o, rawBody: h, body: a }, a) }, t => { const { message: i, response: r } = t; s(i, r, r && e.decode(r.rawBody, this.encoding)) }) } } post(t, s = (() => { })) { const e = t.method ? t.method.toLocaleLowerCase() : "post"; if (t.body && t.headers && !t.headers["Content-Type"] && (t.headers["Content-Type"] = "application/x-www-form-urlencoded"), t.headers && delete t.headers["Content-Length"], this.isSurge() || this.isShadowrocket() || this.isLoon() || this.isStash()) this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })), $httpClient[e](t, (t, e, i) => { !t && e && (e.body = i, e.statusCode = e.status ? e.status : e.statusCode, e.status = e.statusCode), s(t, e, i) }); else if (this.isQuanX()) t.method = e, this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, { hints: !1 })), $task.fetch(t).then(t => { const { statusCode: e, statusCode: i, headers: r, body: o } = t; s(null, { status: e, statusCode: i, headers: r, body: o }, o) }, t => s(t && t.error || "UndefinedError")); else if (this.isNode()) { let i = require("iconv-lite"); this.initGotEnv(t); const { url: r, ...o } = t; this.got[e](r, o).then(t => { const { statusCode: e, statusCode: r, headers: o, rawBody: h } = t, a = i.decode(h, this.encoding); s(null, { status: e, statusCode: r, headers: o, rawBody: h, body: a }, a) }, t => { const { message: e, response: r } = t; s(e, r, r && i.decode(r.rawBody, this.encoding)) }) } } time(t, s = null) { const e = s ? new Date(s) : new Date; let i = { "M+": e.getMonth() + 1, "d+": e.getDate(), "H+": e.getHours(), "m+": e.getMinutes(), "s+": e.getSeconds(), "q+": Math.floor((e.getMonth() + 3) / 3), S: e.getMilliseconds() }; /(y+)/.test(t) && (t = t.replace(RegExp.$1, (e.getFullYear() + "").substr(4 - RegExp.$1.length))); for (let s in i) new RegExp("(" + s + ")").test(t) && (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? i[s] : ("00" + i[s]).substr(("" + i[s]).length))); return t } queryStr(t) { let s = ""; for (const e in t) { let i = t[e]; null != i && "" !== i && ("object" == typeof i && (i = JSON.stringify(i)), s += `${e}=${i}&`) } return s = s.substring(0, s.length - 1), s } msg(s = t, e = "", i = "", r) { const o = t => { if (!t) return t; if ("string" == typeof t) return this.isLoon() ? t : this.isQuanX() ? { "open-url": t } : this.isSurge() || this.isShadowrocket() || this.isStash() ? { url: t } : void 0; if ("object" == typeof t) { if (this.isLoon()) { let s = t.openUrl || t.url || t["open-url"], e = t.mediaUrl || t["media-url"]; return { openUrl: s, mediaUrl: e } } if (this.isQuanX()) { let s = t["open-url"] || t.url || t.openUrl, e = t["media-url"] || t.mediaUrl, i = t["update-pasteboard"] || t.updatePasteboard; return { "open-url": s, "media-url": e, "update-pasteboard": i } } if (this.isSurge() || this.isShadowrocket() || this.isStash()) { let s = t.url || t.openUrl || t["open-url"]; return { url: s } } } }; if (this.isMute || (this.isSurge() || this.isShadowrocket() || this.isLoon() || this.isStash() ? $notification.post(s, e, i, o(r)) : this.isQuanX() && $notify(s, e, i, o(r))), !this.isMuteLog) { let t = ["", "==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3=============="]; t.push(s), e && t.push(e), i && t.push(i), console.log(t.join("\n")), this.logs = this.logs.concat(t) } } log(...t) { t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(t.join(this.logSeparator)) } logErr(t, s) { const e = !this.isSurge() || this.isShadowrocket() && !this.isQuanX() && !this.isLoon() && !this.isStash(); e ? this.log("", `\u2757\ufe0f${this.name}, \u9519\u8bef!`, t.stack) : this.log("", `\u2757\ufe0f${this.name}, \u9519\u8bef!`, t) } wait(t) { return new Promise(s => setTimeout(s, t)) } done(t = {}) { const s = (new Date).getTime(), e = (s - this.startTime) / 1e3; this.log("", `\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${e} \u79d2`), this.log(), this.isSurge() || this.isShadowrocket() || this.isQuanX() || this.isLoon() || this.isStash() ? $done(t) : this.isNode() && process.exit(1) } }(t, s) }
+function Env(name, opts) {
+  class Http {
+    constructor(env) {
+      this.env = env;
+    }
+
+    send(opts, method = 'GET') {
+      opts = typeof opts === 'string' ? { url: opts } : opts;
+      let sender = this.get;
+      if (method === 'POST') {
+        sender = this.post;
+      }
+      return new Promise((resolve, reject) => {
+        sender.call(this, opts, (err, resp, body) => {
+          if (err) reject(err);
+          else resolve(resp);
+        });
+      });
+    }
+
+    get(opts) {
+      return this.send.call(this.env, opts);
+    }
+
+    post(opts) {
+      return this.send.call(this.env, opts, 'POST');
+    }
+  }
+
+  return new (class {
+    constructor(name, opts = {}) {
+      this.name = name;
+      this.http = new Http(this);
+      this.data = null;
+      this.dataFile = 'box.dat';
+      this.logs = [];
+      this.isMute = false;
+      this.noLogKey = opts.noLogKey || '';
+      this.noLog = opts.noLog;
+      this.isNeedRewrite = false;
+      this.logSeparator = '\n';
+      this.startTime = new Date().getTime();
+      Object.assign(this, opts);
+      this.log('', `🔔${this.name}, 开始!`);
+    }
+
+    isNode() {
+      return 'undefined' !== typeof module && !!module.exports;
+    }
+
+    isQuanX() {
+      return 'undefined' !== typeof $task;
+    }
+
+    isSurge() {
+      return 'undefined' !== typeof $httpClient && 'undefined' === typeof $loon;
+    }
+
+    isLoon() {
+      return 'undefined' !== typeof $loon;
+    }
+
+    isShadowrocket() {
+      return 'undefined' !== typeof $rocket;
+    }
+
+    toObj(str, defaultValue = null) {
+      try {
+        return JSON.parse(str);
+      } catch {
+        return defaultValue;
+      }
+    }
+
+    toStr(obj, defaultValue = null) {
+      try {
+        return JSON.stringify(obj);
+      } catch {
+        return defaultValue;
+      }
+    }
+
+    getJson(key, defaultValue) {
+      let json = defaultValue;
+      const val = this.getData(key);
+      if (val) {
+        try {
+          json = JSON.parse(this.getData(key));
+        } catch { }
+      }
+      return json;
+    }
+
+    setJson(val, key) {
+      try {
+        return this.setData(JSON.stringify(val), key);
+      } catch {
+        return false;
+      }
+    }
+
+    getScript(url) {
+      return new Promise((resolve) => {
+        this.get({ url }, (err, resp, body) => resolve(body));
+      });
+    }
+
+    runScript(script, runOpts) {
+      return new Promise((resolve) => {
+        let httpApi = this.getData('@chavy_boxjs_userCfgs.httpApi');
+        httpApi = httpApi ? httpApi.replace(/\n/g, '').trim() : httpApi;
+        let httpApi_timeout = this.getData(
+          '@chavy_boxjs_userCfgs.httpApi_timeout'
+        );
+        httpApi_timeout = httpApi_timeout ? httpApi_timeout * 1 : 20;
+        httpApi_timeout =
+          runOpts && runOpts.timeout ? runOpts.timeout : httpApi_timeout;
+        const [key, addr] = httpApi.split('@');
+        const opts = {
+          url: `http://${addr}/v1/scripting/evaluate`,
+          body: {
+            script_text: script,
+            mock_type: 'cron',
+            timeout: httpApi_timeout,
+          },
+          headers: { 'X-Key': key, Accept: '*/*' },
+        };
+        this.post(opts, (err, resp, body) => resolve(body));
+      }).catch((e) => this.logErr(e));
+    }
+
+    loadData() {
+      if (this.isNode()) {
+        this.fs = this.fs ? this.fs : require('fs');
+        this.path = this.path ? this.path : require('path');
+        const curDirDataFilePath = this.path.resolve(this.dataFile);
+        const rootDirDataFilePath = this.path.resolve(
+          process.cwd(),
+          this.dataFile
+        );
+        const isCurDirDataFile = this.fs.existsSync(curDirDataFilePath);
+        const isRootDirDataFile =
+          !isCurDirDataFile && this.fs.existsSync(rootDirDataFilePath);
+        if (isCurDirDataFile || isRootDirDataFile) {
+          const datPath = isCurDirDataFile
+            ? curDirDataFilePath
+            : rootDirDataFilePath;
+          try {
+            return JSON.parse(this.fs.readFileSync(datPath));
+          } catch (e) {
+            return {};
+          }
+        } else return {};
+      } else return {};
+    }
+
+    writeData() {
+      if (this.isNode()) {
+        this.fs = this.fs ? this.fs : require('fs');
+        this.path = this.path ? this.path : require('path');
+        const curDirDataFilePath = this.path.resolve(this.dataFile);
+        const rootDirDataFilePath = this.path.resolve(
+          process.cwd(),
+          this.dataFile
+        );
+        const isCurDirDataFile = this.fs.existsSync(curDirDataFilePath);
+        const isRootDirDataFile =
+          !isCurDirDataFile && this.fs.existsSync(rootDirDataFilePath);
+        const jsonData = JSON.stringify(this.data);
+        if (isCurDirDataFile) {
+          this.fs.writeFileSync(curDirDataFilePath, jsonData);
+        } else if (isRootDirDataFile) {
+          this.fs.writeFileSync(rootDirDataFilePath, jsonData);
+        } else {
+          this.fs.writeFileSync(curDirDataFilePath, jsonData);
+        }
+      }
+    }
+
+    lodash_get(source, path, defaultValue = undefined) {
+      const paths = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+      let result = source;
+      for (const p of paths) {
+        result = Object(result)[p];
+        if (result === undefined) {
+          return defaultValue;
+        }
+      }
+      return result;
+    }
+
+    lodash_set(obj, path, value) {
+      if (Object(obj) !== obj) return obj;
+      if (!Array.isArray(path)) path = path.toString().match(/[^.[\]]+/g) || [];
+      path
+        .slice(0, -1)
+        .reduce(
+          (a, c, i) =>
+            Object(a[c]) === a[c]
+              ? a[c]
+              : (a[c] = Math.abs(path[i + 1]) >> 0 === +path[i + 1] ? [] : {}),
+          obj
+        )[path[path.length - 1]] = value;
+      return obj;
+    }
+
+    getData(key) {
+      let val = this.getVal(key);
+      // 如果以 @
+      if (/^@/.test(key)) {
+        const [, objKey, paths] = /^@(.*?)\.(.*?)$/.exec(key);
+        const objVal = objKey ? this.getVal(objKey) : '';
+        if (objVal) {
+          try {
+            const objedVal = JSON.parse(objVal);
+            val = objedVal ? this.lodash_get(objedVal, paths, '') : val;
+          } catch (e) {
+            val = '';
+          }
+        }
+      }
+      return val;
+    }
+
+    setData(val, key) {
+      let isSuc = false;
+      if (/^@/.test(key)) {
+        const [, objKey, paths] = /^@(.*?)\.(.*?)$/.exec(key);
+        const objdat = this.getVal(objKey);
+        const objVal = objKey
+          ? objdat === 'null'
+            ? null
+            : objdat || '{}'
+          : '{}';
+        try {
+          const objedVal = JSON.parse(objVal);
+          this.lodash_set(objedVal, paths, val);
+          isSuc = this.setVal(JSON.stringify(objedVal), objKey);
+        } catch (e) {
+          const objedVal = {};
+          this.lodash_set(objedVal, paths, val);
+          isSuc = this.setVal(JSON.stringify(objedVal), objKey);
+        }
+      } else {
+        isSuc = this.setVal(val, key);
+      }
+      return isSuc;
+    }
+
+    getVal(key) {
+      if (this.isSurge() || this.isLoon()) {
+        return $persistentStore.read(key);
+      } else if (this.isQuanX()) {
+        return $prefs.valueForKey(key);
+      } else if (this.isNode()) {
+        this.data = this.loadData();
+        return this.data[key];
+      } else {
+        return (this.data && this.data[key]) || null;
+      }
+    }
+
+    setVal(val, key) {
+      if (this.isSurge() || this.isLoon()) {
+        return $persistentStore.write(val, key);
+      } else if (this.isQuanX()) {
+        return $prefs.setValueForKey(val, key);
+      } else if (this.isNode()) {
+        this.data = this.loadData();
+        this.data[key] = val;
+        this.writeData();
+        return true;
+      } else {
+        return (this.data && this.data[key]) || null;
+      }
+    }
+
+    initGotEnv(opts) {
+      this.got = this.got ? this.got : require('got');
+      this.ckTough = this.ckTough ? this.ckTough : require('tough-cookie');
+      this.ckJar = this.ckJar ? this.ckJar : new this.ckTough.CookieJar();
+      if (opts) {
+        opts.headers = opts.headers ? opts.headers : {};
+        if (undefined === opts.headers.Cookie && undefined === opts.cookieJar) {
+          opts.cookieJar = this.ckJar;
+        }
+      }
+    }
+
+    get(opts, callback = () => { }) {
+      if (opts.headers) {
+        delete opts.headers['Content-Type'];
+        delete opts.headers['Content-Length'];
+      }
+      if (this.isSurge() || this.isLoon()) {
+        if (this.isSurge() && this.isNeedRewrite) {
+          opts.headers = opts.headers || {};
+          Object.assign(opts.headers, { 'X-Surge-Skip-Scripting': false });
+        }
+        $httpClient.get(opts, (err, resp, body) => {
+          if (!err && resp) {
+            resp.body = body;
+            resp.statusCode = resp.status;
+          }
+          callback(err, resp, body);
+        });
+      } else if (this.isQuanX()) {
+        if (this.isNeedRewrite) {
+          opts.opts = opts.opts || {};
+          Object.assign(opts.opts, { hints: false });
+        }
+        $task.fetch(opts).then(
+          (resp) => {
+            const { statusCode: status, statusCode, headers, body } = resp;
+            callback(null, { status, statusCode, headers, body }, body);
+          },
+          (err) => callback(err)
+        );
+      } else if (this.isNode()) {
+        this.initGotEnv(opts);
+        this.got(opts)
+          .on('redirect', (resp, nextOpts) => {
+            try {
+              if (resp.headers['set-cookie']) {
+                const ck = resp.headers['set-cookie']
+                  .map(this.ckTough.Cookie.parse)
+                  .toString();
+                if (ck) {
+                  this.ckJar.setCookieSync(ck, null);
+                }
+                nextOpts.cookieJar = this.ckJar;
+              }
+            } catch (e) {
+              this.logErr(e);
+            }
+            // this.ckJar.setCookieSync(resp.headers['set-cookie'].map(Cookie.parse).toString())
+          })
+          .then(
+            (resp) => {
+              const { statusCode: status, statusCode, headers, body } = resp;
+              callback(null, { status, statusCode, headers, body }, body);
+            },
+            (err) => {
+              const { message: error, response: resp } = err;
+              callback(error, resp, resp && resp.body);
+            }
+          );
+      }
+    }
+
+    post(opts, callback = () => { }) {
+      const method = opts.method ? opts.method.toLocaleLowerCase() : 'post';
+      // 如果指定了请求体, 但没指定`Content-Type`, 则自动生成
+      // if (opts.body && // opts.headers && !opts.headers['Content-Type']) {
+      // opts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      //  }
+      if (opts.headers) delete opts.headers['Content-Length'];
+      if (this.isSurge() || this.isLoon()) {
+        if (this.isSurge() && this.isNeedRewrite) {
+          opts.headers = opts.headers || {};
+          Object.assign(opts.headers, { 'X-Surge-Skip-Scripting': false });
+        }
+        $httpClient[method](opts, (err, resp, body) => {
+          if (!err && resp) {
+            resp.body = body;
+            resp.statusCode = resp.status;
+          }
+          callback(err, resp, body);
+        });
+      } else if (this.isQuanX()) {
+        opts.method = method;
+        if (this.isNeedRewrite) {
+          opts.opts = opts.opts || {};
+          Object.assign(opts.opts, { hints: false });
+        }
+        $task.fetch(opts).then(
+          (resp) => {
+            const { statusCode: status, statusCode, headers, body } = resp;
+            callback(null, { status, statusCode, headers, body }, body);
+          },
+          (err) => callback(err)
+        );
+      } else if (this.isNode()) {
+        this.initGotEnv(opts);
+        const { url, ..._opts } = opts;
+        this.got[method](url, _opts).then(
+          (resp) => {
+            const { statusCode: status, statusCode, headers, body } = resp;
+            callback(null, { status, statusCode, headers, body }, body);
+          },
+          (err) => {
+            const { message: error, response: resp } = err;
+            callback(error, resp, resp && resp.body);
+          }
+        );
+      }
+    }
+    /**
+     *
+     * 示例:$.time('yyyy-MM-dd qq HH:mm:ss.S')
+     *    :$.time('yyyyMMddHHmmssS')
+     *    y:年 M:月 d:日 q:季 H:时 m:分 s:秒 S:毫秒
+     *    其中y可选0-4位占位符、S可选0-1位占位符，其余可选0-2位占位符
+     * @param {string} fmt 格式化参数
+     * @param {number} 可选: 根据指定时间戳返回格式化日期
+     *
+     */
+    time(fmt, ts = null) {
+      const date = ts ? new Date(ts) : new Date();
+      let o = {
+        'M+': date.getMonth() + 1,
+        'd+': date.getDate(),
+        'H+': date.getHours(),
+        'm+': date.getMinutes(),
+        's+': date.getSeconds(),
+        'q+': Math.floor((date.getMonth() + 3) / 3),
+        S: date.getMilliseconds(),
+      };
+      if (/(y+)/.test(fmt))
+        fmt = fmt.replace(
+          RegExp.$1,
+          (date.getFullYear() + '').substr(4 - RegExp.$1.length)
+        );
+      for (let k in o)
+        if (new RegExp('(' + k + ')').test(fmt))
+          fmt = fmt.replace(
+            RegExp.$1,
+            RegExp.$1.length == 1
+              ? o[k]
+              : ('00' + o[k]).substr(('' + o[k]).length)
+          );
+      return fmt;
+    }
+
+    /**
+     * 系统通知
+     *
+     * > 通知参数: 同时支持 QuanX 和 Loon 两种格式, EnvJs根据运行环境自动转换, Surge 环境不支持多媒体通知
+     *
+     * 示例:
+     * $.msg(title, subt, desc, 'twitter://')
+     * $.msg(title, subt, desc, { 'open-url': 'twitter://', 'media-url': 'https://github.githubassets.com/images/modules/open_graph/github-mark.png' })
+     * $.msg(title, subt, desc, { 'open-url': 'https://bing.com', 'media-url': 'https://github.githubassets.com/images/modules/open_graph/github-mark.png' })
+     *
+     * @param {*} title 标题
+     * @param {*} subt 副标题
+     * @param {*} desc 通知详情
+     * @param {*} opts 通知参数
+     *
+     */
+    msg(title = name, subt = '', desc = '', opts) {
+      const toEnvOpts = (rawOpts) => {
+        if (!rawOpts) return rawOpts;
+        if (typeof rawOpts === 'string') {
+          if (this.isLoon()) return rawOpts;
+          else if (this.isQuanX()) return { 'open-url': rawOpts };
+          else if (this.isSurge()) return { url: rawOpts };
+          else return undefined;
+        } else if (typeof rawOpts === 'object') {
+          if (this.isLoon()) {
+            let openUrl = rawOpts.openUrl || rawOpts.url || rawOpts['open-url'];
+            let mediaUrl = rawOpts.mediaUrl || rawOpts['media-url'];
+            return { openUrl, mediaUrl };
+          } else if (this.isQuanX()) {
+            let openUrl = rawOpts['open-url'] || rawOpts.url || rawOpts.openUrl;
+            let mediaUrl = rawOpts['media-url'] || rawOpts.mediaUrl;
+            let updatePasteboard =
+              rawOpts['update-pasteboard'] || rawOpts.updatePasteboard;
+            return {
+              'open-url': openUrl,
+              'media-url': mediaUrl,
+              'update-pasteboard': updatePasteboard,
+            };
+          } else if (this.isSurge()) {
+            let openUrl = rawOpts.url || rawOpts.openUrl || rawOpts['open-url'];
+            return { url: openUrl };
+          }
+        } else {
+          return undefined;
+        }
+      };
+      if (!this.isMute) {
+        if (this.isSurge() || this.isLoon()) {
+          $notification.post(title, subt, desc, toEnvOpts(opts));
+        } else if (this.isQuanX()) {
+          $notify(title, subt, desc, toEnvOpts(opts));
+        }
+      }
+      if (!this.isMuteLog) {
+        let logs = ['', '==============📣系统通知📣=============='];
+        logs.push(title);
+        subt ? logs.push(subt) : '';
+        desc ? logs.push(desc) : '';
+        console.log(logs.join('\n'));
+        this.logs = this.logs.concat(logs);
+      }
+    }
+
+    log(...logs) {
+      if (this.noLog || (this.noLogKey && (this.getData(this.noLogKey) || 'N').toLocaleUpperCase() === 'Y')) {
+        return;
+      }
+      if (logs.length > 0) {
+        this.logs = [...this.logs, ...logs];
+      }
+      console.log(logs.join(this.logSeparator));
+    }
+
+    logErr(err, msg) {
+      const isPrintSack = !this.isSurge() && !this.isQuanX() && !this.isLoon();
+      if (!isPrintSack) {
+        this.log('', `❗️${this.name}, 错误!`, err);
+      } else {
+        this.log('', `❗️${this.name}, 错误!`, err.stack);
+      }
+    }
+
+    wait(time) {
+      return new Promise((resolve) => setTimeout(resolve, time));
+    }
+
+    done(val = {}) {
+      const endTime = new Date().getTime();
+      const costTime = (endTime - this.startTime) / 1000;
+      this.log('', `🔔${this.name}, 结束! 🕛 ${costTime} 秒`);
+      this.log();
+      if (this.isSurge() || this.isQuanX() || this.isLoon()) {
+        $done(val);
+      }
+    }
+  })(name, opts);
+}
