@@ -7,17 +7,48 @@ const force_update = $.getData("@ql.force_update") || false;
 
 !(async () => {
   if (!url || !client_id || !client_secret) {
-    $.logErr('请先配置 boxjs 数据');
+    $.log("请先配置好QL的地址、client_id、client_secret");
     $.done()
     return;
   }
+  const reqHost = $request.headers.Host;
   const ql = new QLSync(url, client_id, client_secret);
-  await GetCookie(ql);
+
+  if (reqHost.indexOf('jd.com') > -1) {
+    // 京东
+    await GetCookie(ql);
+  }
+  if (reqHost.indexOf('tmuyun.com') > -1) {
+    // 今日越城
+    await jryc(ql);
+  }
+  if (reqHost.indexOf('gacmotor.com') > -1) {
+    // 广汽传祺
+    await gqcq(ql);
+  }
+  if (reqHost.indexOf('sf-express.com') > -1) {
+    // 顺丰速运
+    await sfsy(ql);
+  }
 })()
   .catch((e) => ($.logErr(e)))
   .finally(() => $.done());
 
-
+async function jryc(ql) {
+  const jrycAccount = $request.headers['X-SESSION-ID'];
+  const up = await Store('jrycAccount', jrycAccount)
+  if (up || force_update) await ql.setQlCookie('jrycAccount', '今日越城');
+}
+async function gqcq(ql) {
+  const gqcqCookie = $request.headers['token'];
+  const up = await Store('gqcqCookie', gqcqCookie)
+  if (up || force_update) await ql.setQlCookie('gqcqCookie', '广汽传祺');
+}
+async function sfsy(ql) {
+  const sfsyUrl = $request.url;
+  const up = await Store('sfsyUrl', sfsyUrl)
+  if (up || force_update) await ql.setQlCookie('sfsyUrl', '顺丰速运');
+}
 async function GetCookie(ql) {
   const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
 
@@ -28,50 +59,66 @@ async function GetCookie(ql) {
   ) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const JD_COOKIE = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
-      const up = await Store('JD_COOKIE', JD_COOKIE)
-      if(up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
+      const up = await StoreJD('JD_COOKIE', JD_COOKIE)
+      if (up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
     } else {
       console.log('ck 写入失败，未找到相关 ck');
     }
   } else if ($request.url.indexOf('getSessionLog') > -1) {
     if (CV.match(/wskey=.+?;/) && CV.match(/pin=.+?;/)) {
       const JD_WSCK = CV.match(/wskey=.+?;/) + CV.match(/pin=.+?;/);
-      const up = await Store('JD_WSCK', JD_WSCK)
-      if(up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
+      const up = await StoreJD('JD_WSCK', JD_WSCK)
+      if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
     }
   } else {
     console.log('未匹配到相关信息，退出抓包');
   }
 }
 
-async function Store(key, value) {
+async function StoreJD(key, value) {
   let storeValue = $.getData(`@ql.${key}`) || '';
   return new Promise((resolve, reject) => {
     if (!storeValue) {
       $.setData(value, `@ql.${key}`);
       return resolve(true);
     }
-    const storeValueArr = storeValue.split('&');
+    const storeValueArr = storeValue.split("&");
     const pin = value.match(/pin=(.+?);/)[1];
     const found = storeValueArr.find((item) => item.match(/pin=(.+?);/)[1] == pin)
     if (found) {
       if (found != value) {
         storeValueArr[storeValueArr.indexOf(found)] = value;
-        $.setData(storeValueArr.join('&'), `@ql.${key}`);
+        $.setData(storeValueArr.join("&"), `@ql.${key}`);
         return resolve(true);
       } else {
         return resolve(false);
       }
     } else {
-      $.setData(storeValue + '&' + value, `@ql.${key}`);
+      $.setData(storeValue + "&" + value, `@ql.${key}`);
       return resolve(true);
     }
 
   })
 }
+async function Store(key, value, separate = "\n") {
+  let storeValue = $.getData(`@ql.${key}`) || '';
 
+  return new Promise((resolve) => {
+    if (!storeValue) {
+      $.setData(value, `@ql.${key}`);
+      return resolve(true);
+    }
+    const storeValueArr = storeValue.split(separate);
+    const found = storeValueArr.find((item) => item == value)
+    if (found) {
+      return resolve(false);
+    } else {
+      $.setData(storeValue + separate + value, `@ql.${key}`);
+      return resolve(true);
+    }
 
-
+  })
+}
 
 function QLSync(url, clientid, clientsecret) {
   return new (class {
