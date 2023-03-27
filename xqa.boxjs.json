@@ -13,7 +13,10 @@
         "@ql.client_secret",
         "@ql.force_update",
         "@ql.JD_WSCK",
-        "@ql.JD_COOKIE"
+        "@ql.JD_COOKIE",
+        "@ql.jrycAccount",
+        "@ql.gqcqCookie",
+        "@ql.sfsyUrl"
       ],
       "settings": [
         {
