@@ -6,7 +6,7 @@
   "apps": [
     {
       "id": "ql",
-      "name": "京东青龙同步",
+      "name": "青龙cookie同步",
       "keys": [
         "@ql.url",
         "@ql.client_id",
@@ -44,10 +44,7 @@
           "type": "boolean"
         }
       ],
-      "icons": [
-        "https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/jd.png",
-        "https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png"
-      ],
+      "icons": ["https://qn.whyour.cn/logo.png"],
       "author": "@xqa",
       "descs_html": [
         "应用client_id,client_secret请去 设置->应用 中添加相关参数"
