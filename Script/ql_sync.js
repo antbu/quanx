@@ -100,23 +100,15 @@ async function StoreJD(key, value) {
 
   })
 }
-async function Store(key, value, separate = "\n") {
+async function Store(key, value) {
   let storeValue = $.getData(`@ql.${key}`) || '';
 
   return new Promise((resolve) => {
-    if (!storeValue) {
+    if (!storeValue || storeValue != value) {
       $.setData(value, `@ql.${key}`);
       return resolve(true);
     }
-    const storeValueArr = storeValue.split(separate);
-    const found = storeValueArr.find((item) => item == value)
-    if (found) {
-      return resolve(false);
-    } else {
-      $.setData(storeValue + separate + value, `@ql.${key}`);
-      return resolve(true);
-    }
-
+    return resolve(false);
   })
 }
 
