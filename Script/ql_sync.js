@@ -46,6 +46,7 @@ async function gqcq(ql) {
 }
 async function sfsy(ql) {
   const sfsyUrl = $request.url;
+  if (sfsyUrl.indexOf('source') == -1) return;
   const up = await Store('sfsyUrl', sfsyUrl)
   if (up || force_update) await ql.setQlCookie('sfsyUrl', '顺丰速运');
 }
