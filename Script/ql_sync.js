@@ -67,7 +67,7 @@ async function GetCookie(ql) {
     }
   } else if ($request.url.indexOf('getSessionLog') > -1) {
     if (CV.match(/wskey=.+?;/) && CV.match(/pin=.+?;/)) {
-      const JD_WSCK = CV.match(/wskey=.+?;/) + CV.match(/pin=.+?;/);
+      const JD_WSCK = CV.match(/pin=.+?;/) + CV.match(/wskey=.+?;/);
       const up = await StoreJD('JD_WSCK', JD_WSCK)
       if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
     }
