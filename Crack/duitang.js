@@ -4,7 +4,7 @@
 更新时间：2022-10-7
 *******************************
 [rewrite_local]
-^https:\/\/(api|www)\.duitang\.com\/napi url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/duitang.js
+^https:\/\/(api|www)\.duitang\.com\/napi url script-response-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/duitang.js
 [mitm] 
 hostname = api.duitang.com,www.duitang.com
 *******************************/

@@ -4,9 +4,9 @@
 时间：2022-10-5
 *******************************
 [rewrite_local]
-^https:\/\/qianji\.xxoojoke\.com\/vip\/configios url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/qj.js
-^https:\/\/qianji\.xxoojoke\.com\/client\/init url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/qj.js
-^https:\/\/qianji\.xxoojoke\.com\/budget\/list url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/qj.js
+^https:\/\/qianji\.xxoojoke\.com\/vip\/configios url script-response-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/qj.js
+^https:\/\/qianji\.xxoojoke\.com\/client\/init url script-response-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/qj.js
+^https:\/\/qianji\.xxoojoke\.com\/budget\/list url script-response-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/qj.js
 [mitm] 
 hostname = qianji.xxoojoke.com
 *******************************/

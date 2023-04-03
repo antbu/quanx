@@ -4,7 +4,7 @@
 更新时间：2022-10-1
 *******************************
 [rewrite_local]
-^https:\/\/iap\.etm\.tech\/receipts url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/wscsds.js
+^https:\/\/iap\.etm\.tech\/receipts url script-response-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/wscsds.js
 [mitm] 
 hostname = iap.etm.tech
 *******************************/

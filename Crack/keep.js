@@ -4,7 +4,7 @@
 时间：2022-10-22
 *******************************
 [rewrite_local]
-^https:\/\/api\.gotokeep\.com url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/keep.js
+^https:\/\/api\.gotokeep\.com url script-response-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/keep.js
 [mitm] 
 hostname = api.gotokeep.com
 *******************************/

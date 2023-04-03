@@ -4,7 +4,7 @@
 时间：2022-10-20
 *******************************
 [rewrite_local]
-^https?:\/\/license\.pdfexpert\.com\/api\/\d\.\d\/\w{9}\/\w{12}\/(state$|refresh$|check$) url script-request-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/documents.js
+^https?:\/\/license\.pdfexpert\.com\/api\/\d\.\d\/\w{9}\/\w{12}\/(state$|refresh$|check$) url script-request-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/documents.js
 [mitm] 
 hostname = license.pdfexpert.com
 *******************************/

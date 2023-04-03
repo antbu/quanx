@@ -1,8 +1,8 @@
 {
-  "id": "xqa.app.sub",
-  "name": "xqa应用订阅",
-  "author": "@xqa",
-  "repo": "https://github.com/xqa/quanx",
+  "id": "antbu.app.sub",
+  "name": "antbu应用订阅",
+  "author": "@antbu",
+  "repo": "https://github.com/antbu/quanx",
   "apps": [
     {
       "id": "ql",
@@ -45,7 +45,7 @@
         }
       ],
       "icons": ["https://qn.whyour.cn/logo.png"],
-      "author": "@xqa",
+      "author": "@antbu",
       "descs_html": [
         "应用client_id,client_secret请去 设置->应用 中添加相关参数"
       ]

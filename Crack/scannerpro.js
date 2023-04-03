@@ -4,8 +4,8 @@
 时间：2022-05-03
 *******************************
 [rewrite_local]
-^https?:\/\/api\.revenuecat\.com\/v\d\/subscribers\/(\$RCAnonymousID\%)?(\w)+$ url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/scannerpro.js
-^https?:\/\/api\.revenuecat\.com\/v\d\/receipts$ url script-response-body https://raw.githubusercontent.com/xqa/quanx/main/Crack/scannerpro.js
+^https?:\/\/api\.revenuecat\.com\/v\d\/subscribers\/(\$RCAnonymousID\%)?(\w)+$ url script-response-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/scannerpro.js
+^https?:\/\/api\.revenuecat\.com\/v\d\/receipts$ url script-response-body https://raw.githubusercontent.com/antbu/quanx/main/Crack/scannerpro.js
 [mitm] 
 hostname = api.revenuecat.com
 *******************************/
