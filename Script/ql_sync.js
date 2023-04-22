@@ -57,15 +57,15 @@ async function GetCookie(ql) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const pt_pin = CV.match(/pt_pin=.+?;/);
       const JD_COOKIE = CV.match(/pt_key=.+?;/) + pt_pin;
-      $.setVal(pt_pin,"pt_pin")
+      $.setData(pt_pin,"@ql.pin")
       const up = await StoreJD('JD_COOKIE', JD_COOKIE)
       if (up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
     } else {
       console.log('ck 写入失败，未找到相关 ck');
     }
   } else if ($request.url.indexOf('getMixSessionLog') > -1) {
-    if (CV.match(/wskey=.+?;/) && $.getVal("pt_pin") != null) {
-      const JD_WSCK = $.getVal("pt_pin") + CV.match(/wskey=.+?;/);
+    if (CV.match(/wskey=.+?;/) && $.getVal("@ql.pin") != null) {
+      const JD_WSCK = $.getVal("@ql.pin") + CV.match(/wskey=.+?;/);
       const up = await StoreJD('JD_WSCK', JD_WSCK)
       if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
     }

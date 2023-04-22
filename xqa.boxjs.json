@@ -14,6 +14,7 @@
         "@ql.force_update",
         "@ql.JD_WSCK",
         "@ql.JD_COOKIE",
+        "@ql.pin",
         "@ql.jrycAccount",
         "@ql.gqcqCookie",
         "@ql.sfsyUrl"
