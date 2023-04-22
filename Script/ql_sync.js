@@ -53,11 +53,7 @@ async function sfsy(ql) {
 async function GetCookie(ql) {
   const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
 
-  if (
-    ($request.url.indexOf('GetJDUserInfoUnion') > -1 &&
-      $request.url.indexOf('isLogin') === -1) ||
-    $request.url.indexOf('openUpgrade') > -1
-  ) {
+  if ($request.url.indexOf('openUpgrade') > -1) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const JD_COOKIE = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
       const up = await StoreJD('JD_COOKIE', JD_COOKIE)
@@ -65,7 +61,7 @@ async function GetCookie(ql) {
     } else {
       console.log('ck 写入失败，未找到相关 ck');
     }
-  } else if ($request.url.indexOf('getSessionLog') > -1) {
+  } else if ($request.url.indexOf('getMixSessionLog') > -1) {
     if (CV.match(/wskey=.+?;/) && CV.match(/pin=.+?;/)) {
       const JD_WSCK = CV.match(/pin=.+?;/) + CV.match(/wskey=.+?;/);
       const up = await StoreJD('JD_WSCK', JD_WSCK)
