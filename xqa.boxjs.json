@@ -5,7 +5,7 @@
   "repo": "https://github.com/antbu/quanx",
   "apps": [
     {
-      "id": "ql",
+      "id": "xqa_ql",
       "name": "青龙cookie同步",
       "keys": [
         "@ql.url",
