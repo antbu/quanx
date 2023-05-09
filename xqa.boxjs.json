@@ -9,8 +9,8 @@
       "name": "青龙cookie同步",
       "keys": [
         "@ql.url",
-        "@ql.client_id",
-        "@ql.client_secret",
+        "@ql.username",
+        "@ql.password",
         "@ql.force_update",
         "@ql.token",
         "@ql.expiration",
@@ -31,14 +31,14 @@
           "type": "text"
         },
         {
-          "id": "@ql.client_id",
-          "name": "应用 Client ID",
+          "id": "@ql.username",
+          "name": "账号",
           "val": "",
           "type": "text"
         },
         {
-          "id": "@ql.client_secret",
-          "name": "应用 Client Secret",
+          "id": "@ql.password",
+          "name": "密码",
           "val": "",
           "type": "text"
         },

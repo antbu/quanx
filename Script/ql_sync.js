@@ -1,18 +1,18 @@
 const $ = new Env("ql_sync");
 
 const url = $.getData("@ql.url");
-const client_id = $.getData("@ql.client_id");
-const client_secret = $.getData("@ql.client_secret");
+const username = $.getData("@ql.username");
+const password = $.getData("@ql.password");
 const force_update = $.getData("@ql.force_update") || false;
 
 !(async () => {
-  if (!url || !client_id || !client_secret) {
-    $.log("请先配置好QL的地址、client_id、client_secret");
+  if (!url || !username || !password) {
+    $.log("请先配置好QL的地址、username、password");
     $.done()
     return;
   }
   const reqHost = $request.headers.Host;
-  const ql = new QLSync(url, client_id, client_secret);
+  const ql = new QLSync(url, username, password);
 
   if (reqHost.indexOf('jd.com') > -1) {
     // 京东
@@ -158,14 +158,13 @@ async function Store1(key, value, separate = "&") {
 }
 
 
-function QLSync(url, clientid, clientsecret) {
+function QLSync(url, username, password) {
   return new (class {
-    constructor(url, clientid, clientsecret) {
+    constructor(url, username, password) {
       this.url = url;
-      this.clientid = clientid;
-      this.clientsecret = clientsecret;
+      this.username = username;
+      this.password = password;
       this.token = $.getData("@ql.token") || "";
-      this.expiration = $.getData("@ql.expiration") || 0;
       this.ckName = "";
       this.remarks = "";
       this.ckValue = "";
@@ -205,10 +204,13 @@ function QLSync(url, clientid, clientsecret) {
     async updateToken() {
       return new Promise(async (resolve, reject) => {
         try {
-          const resp = await this.ajax("GET", `${this.url}/open/auth/token?client_id=${this.client_id}&client_secret=${this.client_secret}`, false);
+          const time = new Date().getTime()
+          const resp = await this.ajax("POST", `${this.url}/api/user/login&t=${time}`,{
+            "username": this.username,
+            "password": this.password
+        }, false);
           this.token = resp.data.token;
           $.setData(this.token, "@ql.token");
-          $.setData(resp.data.expiration, "@ql.expiration");
           resolve();
         } catch (e) {
           return reject(e);
@@ -243,7 +245,7 @@ function QLSync(url, clientid, clientsecret) {
       this.remarks = remarks;
       this.ckValue = $.getData(`@ql.${ckName}`);
       try {
-        if (!this.token || this.expiration < new Date().getTime() / 1000 - 1000) {
+        if (!this.token) {
           await this.updateToken();
         }
         await this.updateCk();
