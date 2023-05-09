@@ -182,16 +182,13 @@ function QLSync(url, username, password) {
         if (data) {
           options.body = $.toStr(data);
           options.headers['Content-Type'] = `application/json;charset=UTF-8`;
-
         }
         if (auth) {
           options.headers['Authorization'] = `Bearer ${this.token}`;
         }
-        $.log('headers',$.toStr(options))
         $task.fetch(options).then(
           (resp) => {
             const { statusCode, body } = $.toObj(resp, resp);
-            $.log(234,statusCode,body)
             if (statusCode == 200) {
               resolve($.toObj(body, body));
             } else {
@@ -206,15 +203,11 @@ function QLSync(url, username, password) {
     async updateToken() {
       return new Promise(async (resolve, reject) => {
         try {
-        $.log('2',this.username,this.password)
-
           const time = new Date().getTime()
-          const resp = await this.ajax("POST", `${this.url}/api/user/login&t=${time}`,{
+          const resp = await this.ajax("POST", `${this.url}/api/user/login?t=${time}`,{
             "username": this.username,
             "password": this.password
-        }, false).then().catch(e => $.log(222,e));
-        $.log('2-resp',resp.data.token)
-
+        }, false);
           this.token = resp.data.token;
           $.setData(resp.data.token, "@ql.token");
           resolve();
@@ -251,9 +244,7 @@ function QLSync(url, username, password) {
       this.remarks = remarks;
       this.ckValue = $.getData(`@ql.${ckName}`);
       try {
-        $.log('1-token',this.token)
         if (!this.token) {
-          $.log('2-token',this.token)
           await this.updateToken();
         }
         await this.updateCk();
