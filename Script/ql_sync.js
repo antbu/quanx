@@ -175,6 +175,9 @@ function QLSync(url, username, password) {
         const options = {
           url: url,
           method: method,
+          headers: {
+            'Accept': 'application/json',
+          }
         };
         if (data) {
           options.body = $.toStr(data);
@@ -202,10 +205,12 @@ function QLSync(url, username, password) {
       return new Promise(async (resolve, reject) => {
         try {
         $.log('2',this.username,this.password)
-          const resp = await this.ajax("POST", `${this.url}/api/user/login`,{
+
+          const time = new Date().getTime()
+          const resp = await this.ajax("POST", `${this.url}/api/user/login&t=${time}`,{
             "username": this.username,
             "password": this.password
-        }, false).then().catch(e => $.log('22',e));
+        }, false).then().catch(e => $.log(222,e));
         $.log('2-resp',resp.data.token)
 
           this.token = resp.data.token;
