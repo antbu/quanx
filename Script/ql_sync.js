@@ -187,7 +187,7 @@ function QLSync(url, username, password) {
         if (auth) {
           options.headers['Authorization'] = `Bearer ${this.token}`;
         }
-        $.log('headers',$.toStr(options.headers))
+        $.log('headers',$.toStr(options))
         $task.fetch(options).then(
           (resp) => {
             const { statusCode, body } = $.toObj(resp, resp);
