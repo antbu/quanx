@@ -204,6 +204,8 @@ function QLSync(url, username, password) {
     async updateToken() {
       return new Promise(async (resolve, reject) => {
         try {
+        $.log('2',this.username,this.password)
+
           const time = new Date().getTime()
           const resp = await this.ajax("POST", `${this.url}/api/user/login&t=${time}`,{
             "username": this.username,
