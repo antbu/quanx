@@ -176,12 +176,12 @@ function QLSync(url, username, password) {
           url: url,
           method: method,
           headers: {
-            'Accept': 'application/json',
+            'Accept': '*/*',
           }
         };
         if (data) {
           options.body = $.toStr(data);
-          options.headers['Content-Type'] = 'application/json;charset=UTF-8';
+          options.headers['Content-Type'] = `application/json;charset=UTF-8`;
 
         }
         if (auth) {
