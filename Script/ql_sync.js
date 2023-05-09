@@ -190,6 +190,7 @@ function QLSync(url, username, password) {
         $task.fetch(options).then(
           (resp) => {
             const { statusCode, body } = $.toObj(resp, resp);
+            $.log(234,statusCode,body)
             if (statusCode == 200) {
               resolve($.toObj(body, body));
             } else {
