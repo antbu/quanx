@@ -246,6 +246,7 @@ function QLSync(url, username, password) {
       this.ckValue = $.getData(`@ql.${ckName}`);
       try {
         if (!this.token) {
+          $.log(1)
           await this.updateToken();
         }
         await this.updateCk();
