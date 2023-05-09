@@ -17,7 +17,9 @@
         "@ql.pin",
         "@ql.jrycAccount",
         "@ql.gqcqCookie",
-        "@ql.sfsyUrl"
+        "@ql.sfsyUrl",
+        "@ql.meituanCookie",
+        "@ql.elmCookie"
       ],
       "settings": [
         {
