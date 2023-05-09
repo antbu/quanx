@@ -30,6 +30,14 @@ const force_update = $.getData("@ql.force_update") || false;
     // 顺丰速运
     await sfsy(ql);
   }
+  if (reqHost.indexOf('meituan.com') > -1) {
+    // 美团
+    await meituan(ql);
+  }
+  if (reqHost.indexOf('ele.me') > -1) {
+    // 饿了么
+    await ele(ql);
+  }
 })()
   .catch((e) => ($.logErr(e)))
   .finally(() => $.done());
@@ -50,6 +58,24 @@ async function sfsy(ql) {
   const up = await Store('sfsyUrl', sfsyUrl)
   if (up || force_update) await ql.setQlCookie('sfsyUrl', '顺丰速运');
 }
+async function meituan(ql) {
+  const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
+  const match = ck.match(/token=(.*?);/);
+  if (match && match.length > 1) {
+    const tokenValue = match[1];
+    const up = await Store1('meituanCookie', tokenValue)
+    if (up || force_update) await ql.setQlCookie('meituanCookie', '美团');
+  } else {
+    console.log('meituan ck 写入失败，未找到相关 ck');
+  }
+}
+async function ele(ql) {
+  const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
+  const elmCookie = ck.match(/SID=.+?;/) + ck.match(/cookie2=.+?;/) + `grabCoupon=1;`
+
+  const up = await Store1('elmCookie', elmCookie)
+  if (up || force_update) await ql.setQlCookie('elmCookie', '饿了么');
+}
 async function GetCookie(ql) {
   const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
 
@@ -57,7 +83,7 @@ async function GetCookie(ql) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const pt_pin = CV.match(/pt_pin=.+?;/);
       const JD_COOKIE = CV.match(/pt_key=.+?;/) + pt_pin;
-      $.setData(pt_pin,"@ql.pin")
+      $.setData(pt_pin, "@ql.pin")
       const up = await StoreJD('JD_COOKIE', JD_COOKIE)
       if (up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
     } else {
