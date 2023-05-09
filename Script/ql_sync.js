@@ -209,6 +209,8 @@ function QLSync(url, username, password) {
             "username": this.username,
             "password": this.password
         }, false);
+        $.log('1-resp',resp.data.token)
+
           this.token = resp.data.token;
           $.setData(resp.data.token, "@ql.token");
           resolve();
@@ -245,6 +247,7 @@ function QLSync(url, username, password) {
       this.remarks = remarks;
       this.ckValue = $.getData(`@ql.${ckName}`);
       try {
+        $.log('1-token',this.token)
         if (this.token == '') {
           await this.updateToken();
         }
@@ -260,6 +263,7 @@ function QLSync(url, username, password) {
             return Promise.reject(e);
           }
         }
+        $.log('err',error)
         return Promise.reject(error);
       }
     }
