@@ -207,7 +207,7 @@ function QLSync(url, username, password) {
           const resp = await this.ajax("POST", `${this.url}/api/user/login?t=${time}`,{
             "username": this.username,
             "password": this.password
-        }, false);
+        }, false).catch(e => $.log('err',e));
           this.token = resp.data.token;
           $.setData(resp.data.token, "@ql.token");
           resolve();
