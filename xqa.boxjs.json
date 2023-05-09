@@ -12,6 +12,8 @@
         "@ql.client_id",
         "@ql.client_secret",
         "@ql.force_update",
+        "@ql.token",
+        "@ql.expiration",
         "@ql.JD_WSCK",
         "@ql.JD_COOKIE",
         "@ql.pin",
