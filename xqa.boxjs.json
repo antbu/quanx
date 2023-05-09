@@ -13,7 +13,6 @@
         "@ql.password",
         "@ql.force_update",
         "@ql.token",
-        "@ql.expiration",
         "@ql.JD_WSCK",
         "@ql.JD_COOKIE",
         "@ql.pin",

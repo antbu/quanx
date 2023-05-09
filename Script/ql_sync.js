@@ -210,7 +210,7 @@ function QLSync(url, username, password) {
             "password": this.password
         }, false);
           this.token = resp.data.token;
-          $.setData(this.token, "@ql.token");
+          $.setData(resp.data.token, "@ql.token");
           resolve();
         } catch (e) {
           return reject(e);
@@ -263,7 +263,7 @@ function QLSync(url, username, password) {
         return Promise.reject(error);
       }
     }
-  })(url, clientid, clientsecret)
+  })(url, username, password)
 }
 
 // https://github.com/chavyleung/scripts/blob/master/Env.js
