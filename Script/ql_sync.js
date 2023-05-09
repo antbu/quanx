@@ -180,7 +180,7 @@ function QLSync(url, username, password) {
           }
         };
         if (data) {
-          options.body = $.toStr(data);
+          options.body = data;
           options.headers['Content-Type'] = 'application/json;charset=UTF-8';
 
         }
