@@ -207,7 +207,8 @@ function QLSync(url, username, password) {
           const resp = await this.ajax("POST", `${this.url}/api/user/login?t=${time}`,{
             "username": this.username,
             "password": this.password
-        }, false).catch(e => $.log('err',e));
+        }, false).then().catch(e => $.log('err',e));
+        $.log('resp',$.toStr(resp))
           this.token = resp.data.token;
           $.setData(resp.data.token, "@ql.token");
           resolve();
@@ -250,6 +251,7 @@ function QLSync(url, username, password) {
         await this.updateCk();
         return Promise.resolve();
       } catch (error) {
+        $.log(error)
         if (error == "UnauthorizedError") {
           try {
             await this.updateToken();
