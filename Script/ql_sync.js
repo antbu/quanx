@@ -251,7 +251,7 @@ function QLSync(url, username, password) {
         await this.updateCk();
         return Promise.resolve();
       } catch (error) {
-        if (e == "UnauthorizedError") {
+        if (error == "UnauthorizedError") {
           try {
             await this.updateToken();
             await this.updateCk();
