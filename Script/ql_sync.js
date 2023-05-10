@@ -71,10 +71,12 @@ async function meituan(ql) {
 }
 async function ele(ql) {
   const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
-  const elmCookie = ck.match(/SID=.+?;/) + ck.match(/cookie2=.+?;/) + `grabCoupon=1;`
+  if(ck.match(/SID=.+?;/) && ck.match(/cookie2=.+?;/)) {
+    const elmCookie = ck.match(/SID=.+?;/) + ck.match(/cookie2=.+?;/) + `grabCoupon=1;`
 
-  const up = await Store1('elmCookie', elmCookie)
-  if (up || force_update) await ql.setQlCookie('elmCookie', '饿了么');
+    const up = await Store1('elmCookie', elmCookie)
+    if (up || force_update) await ql.setQlCookie('elmCookie', '饿了么');
+  }
 }
 async function GetCookie(ql) {
   const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
@@ -90,7 +92,7 @@ async function GetCookie(ql) {
       console.log('ck 写入失败，未找到相关 ck');
     }
   } else if ($request.url.indexOf('getMixSessionLog') > -1) {
-    if (CV.match(/wskey=.+?;/) && $.getData("@ql.pin") != null) {
+    if (CV.match(/wskey=.+?;/) && $.getData("@ql.pin") != '') {
       const JD_WSCK = $.getData("@ql.pin").match(/pin=.+?;/) + CV.match(/wskey=.+?;/);
       const up = await StoreJD('JD_WSCK', JD_WSCK)
       if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
