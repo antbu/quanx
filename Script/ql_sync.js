@@ -157,7 +157,40 @@ async function Store1(key, value, separate = "&") {
   })
 }
 
+class Mutex {
+  constructor() {
+    this._locked = false;
+  }
 
+  lock() {
+    return new Promise((resolve, _reject) => {
+      if (!this._locked) {
+        this._locked = true;
+        resolve({
+          unlock: () => {
+            this._locked = false;
+          },
+        });
+      } else {
+        const waitForUnlock = () => {
+          if (!this._locked) {
+            this._locked = true;
+            resolve({
+              unlock: () => {
+                this._locked = false;
+              },
+            });
+          } else {
+            setTimeout(waitForUnlock, 0);
+          }
+        };
+        waitForUnlock();
+      }
+    });
+  }
+}
+
+const mutex = new Mutex();
 function QLSync(url, username, password) {
   return new (class {
     constructor(url, username, password) {
@@ -207,8 +240,7 @@ function QLSync(url, username, password) {
           const resp = await this.ajax("POST", `${this.url}/api/user/login?t=${time}`,{
             "username": this.username,
             "password": this.password
-        }, false).then().catch(e => $.log('err',e));
-        $.log('resp',$.toStr(resp))
+        }, false);
           this.token = resp.data.token;
           $.setData(resp.data.token, "@ql.token");
           resolve();
@@ -241,27 +273,30 @@ function QLSync(url, username, password) {
     }
 
     async setQlCookie(ckName, remarks) {
+      const lock = await mutex.lock();
       this.ckName = ckName;
       this.remarks = remarks;
       this.ckValue = $.getData(`@ql.${ckName}`);
       try {
         if (!this.token) {
-          $.log(1)
           await this.updateToken();
         }
         await this.updateCk();
+        lock.unlock();
         return Promise.resolve();
       } catch (error) {
-        $.log(error)
         if (error == "UnauthorizedError") {
           try {
             await this.updateToken();
             await this.updateCk();
+            lock.unlock();
             return Promise.resolve();
           } catch (e) {
+            lock.unlock();
             return Promise.reject(e);
           }
         }
+        lock.unlock();
         return Promise.reject(error);
       }
     }
