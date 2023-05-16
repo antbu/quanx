@@ -83,9 +83,10 @@ async function GetCookie(ql) {
   const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
 
   if ($request.url.indexOf('openUpgrade') > -1) {
-    if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
-      const pt_pin = CV.match(/pt_pin=.+?;/);
-      const JD_COOKIE = CV.match(/pt_key=.+?;/) + pt_pin;
+    const pt_key = getCookieValue(CV,'pt_key')
+    const pt_pin = getCookieValue(CV,'pt_pin')
+    if (!!pt_key && !!pt_pin) {
+      const JD_COOKIE = pt_key + pt_pin;
       $.setData(pt_pin, "@ql.pin")
       const up = await StoreJD('JD_COOKIE', JD_COOKIE)
       if (up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
@@ -93,8 +94,9 @@ async function GetCookie(ql) {
       console.log('ck 写入失败，未找到相关 ck');
     }
   } else if ($request.url.indexOf('getMixSessionLog') > -1) {
-    if (CV.match(/wskey=.+?;/) && !!$.getData("@ql.pin")) {
-      const JD_WSCK = $.getData("@ql.pin").match(/pin=.+?;/) + CV.match(/wskey=.+?;/);
+    const wskey = getCookieValue(CV,'wskey')
+    if (!!wskey && !!$.getData("@ql.pin")) {
+      const JD_WSCK = $.getData("@ql.pin").match(/pin=.+?;/) + wskey;
       const up = await StoreJD('JD_WSCK', JD_WSCK)
       if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
     }
