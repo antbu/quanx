@@ -71,8 +71,8 @@ async function meituan(ql) {
 }
 async function ele(ql) {
   const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
-  const sid = getCookieValue(ck,'SID')
-  const cookie2 = getCookieValue(ck,'cookie2')
+  const sid = extractCookieValue(ck,'SID')
+  const cookie2 = extractCookieValue(ck,'cookie2')
   if(!!sid && !!cookie2) {
     const elmCookie = `${sid}${cookie2}grabCoupon=1;`
     const up = await Store1('elmCookie', elmCookie)
@@ -83,8 +83,8 @@ async function GetCookie(ql) {
   const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
 
   if ($request.url.indexOf('openUpgrade') > -1) {
-    const pt_key = getCookieValue(CV,'pt_key')
-    const pt_pin = getCookieValue(CV,'pt_pin')
+    const pt_key = extractCookieValue(CV,'pt_key')
+    const pt_pin = extractCookieValue(CV,'pt_pin')
     if (!!pt_key && !!pt_pin) {
       const JD_COOKIE = pt_key + pt_pin;
       $.setData(pt_pin, "@ql.pin")
@@ -94,9 +94,10 @@ async function GetCookie(ql) {
       console.log('ck 写入失败，未找到相关 ck');
     }
   } else if ($request.url.indexOf('getMixSessionLog') > -1) {
-    const wskey = getCookieValue(CV,'wskey')
-    if (!!wskey && !!$.getData("@ql.pin")) {
-      const JD_WSCK = $.getData("@ql.pin").match(/pin=.+?;/) + wskey;
+    const wskey = extractCookieValue(CV,'wskey')
+    const pin = $.getData("@ql.pin")
+    if (!!wskey && !!pin) {
+      const JD_WSCK = pin.match(/pin=.+?;/) + wskey;
       const up = await StoreJD('JD_WSCK', JD_WSCK)
       if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
     }
@@ -105,15 +106,19 @@ async function GetCookie(ql) {
   }
 }
 
-function getCookieValue(cookieStr, key) {
-  const cookies = cookieStr.split('; ');
+function extractCookieValue(cookieString, key) {
+  const cookies = cookieString.split(';');
+  let result = '';
   for (let i = 0; i < cookies.length; i++) {
-    const cookiePair = cookies[i].split('=');
-    if (cookiePair[0] === key) {
-      return `${key}=${cookiePair[1]};`;
+    const cookie = cookies[i].trim();
+    const keyValue = cookie.split('=');
+
+    if (keyValue[0] === key) {
+      result = `${key}=${keyValue[1]};`;
+      break;
     }
   }
-  return '';
+  return result;
 }
 
 async function StoreJD(key, value) {
