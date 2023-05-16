@@ -87,6 +87,7 @@ async function GetCookie(ql) {
     const pt_pin = extractCookieValue(CV,'pt_pin')
     if (!!pt_key && !!pt_pin) {
       const JD_COOKIE = pt_key + pt_pin;
+      $.setData(pt_pin, "@ql.pin")
       const up = await StoreJD('JD_COOKIE', JD_COOKIE)
       if (up || force_update) await ql.setQlCookie('JD_COOKIE', '京东COOKIE');
     } else {
@@ -94,8 +95,10 @@ async function GetCookie(ql) {
     }
   } else if ($request.url.indexOf('getMixSessionLog') > -1) {
     const wskey = extractCookieValue(CV,'wskey')
-    if (!!wskey) {
-      const up = await StoreJD('JD_WSCK', wskey)
+    const pin = $.getData("@ql.pin")
+    if (!!wskey && !!pin) {
+      const JD_WSCK = pin.match(/pin=.+?;/) + wskey;
+      const up = await StoreJD('JD_WSCK', JD_WSCK)
       if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
     }
   } else {
