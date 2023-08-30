@@ -1,0 +1,57 @@
+{
+  "id": "antbu.app.sub",
+  "name": "antbu应用订阅",
+  "author": "@antbu",
+  "repo": "https://github.com/antbu/quanx",
+  "apps": [
+    {
+      "id": "antbu_ql",
+      "name": "青龙cookie同步",
+      "keys": [
+        "@ql.url",
+        "@ql.username",
+        "@ql.password",
+        "@ql.force_update",
+        "@ql.token",
+        "@ql.jrycAccount",
+        "@ql.sfsyUrl",
+        "@ql.meituanCookie",
+        "@ql.elmCookie",
+        "@ql.ylnn",
+        "@ql.mxbc_data",
+        "@ql.lbvip"
+      ],
+      "settings": [
+        {
+          "id": "@ql.url",
+          "name": "青龙登陆的域名或IP:端口号",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "@ql.username",
+          "name": "账号",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "@ql.password",
+          "name": "密码",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "@ql.force_update",
+          "name": "强制更新",
+          "val": false,
+          "type": "boolean"
+        }
+      ],
+      "icons": ["https://qn.whyour.cn/logo.png"],
+      "author": "@antbu",
+      "descs_html": [
+        "啦啦啦啦啦"
+      ]
+    }
+  ]
+}
