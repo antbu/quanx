@@ -25,7 +25,7 @@ const nemeList = [
   }
   const reqHost = $request.headers.Host;
   const ql = new QLSync(url, username, password);
-  ql.syncEnv();
+  await ql.syncEnv();
   if (reqHost.indexOf('api.m.jd.com') > -1) {
     // 京东wskey 
     await wskey(ql);
