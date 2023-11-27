@@ -5,6 +5,18 @@ const username = $.getData("@ql.username");
 const password = $.getData("@ql.password");
 const force_update = $.getData("@ql.force_update") || false;
 
+const nemeList = [
+  'JD_WSCK',
+  'gqcqCookie',
+  'jrycAccount',
+  'sfsyUrl',
+  'meituanCookie',
+  'elmCookie',
+  'lbvip',
+  'mxbc_data',
+  'ylnn'
+]
+
 !(async () => {
   if (!url || !username || !password) {
     $.log("请先配置好QL的地址、username、password");
@@ -13,6 +25,7 @@ const force_update = $.getData("@ql.force_update") || false;
   }
   const reqHost = $request.headers.Host;
   const ql = new QLSync(url, username, password);
+  ql.syncEnv();
   if (reqHost.indexOf('api.m.jd.com') > -1) {
     // 京东wskey 
     await wskey(ql);
@@ -264,6 +277,25 @@ function QLSync(url, username, password) {
           resolve();
         } catch (e) {
           return reject(e);
+        }
+      });
+    }
+
+    async syncEnv() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const time = new Date().getTime()
+          const resp = await this.ajax("GET", `${this.url}/open/envs?searchValue&t=${time}`);
+          const envs = resp.data?.filter((item) => nemeList.includes(item.name));
+          if (envs && envs.length > 0) {
+            for (let i = 0; i < envs.length; i++) {
+              const env = envs[i];
+              $.setData(env.value, `@ql.${env.name}`);
+            }
+          }
+          resolve();
+        } catch (e) {
+          reject(e);
         }
       });
     }
