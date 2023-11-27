@@ -13,6 +13,7 @@
         "@ql.password",
         "@ql.force_update",
         "@ql.token",
+        "@ql.JD_WSCK",
         "@ql.gqcqCookie",
         "@ql.jrycAccount",
         "@ql.sfsyUrl",

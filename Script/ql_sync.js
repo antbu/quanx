@@ -13,7 +13,10 @@ const force_update = $.getData("@ql.force_update") || false;
   }
   const reqHost = $request.headers.Host;
   const ql = new QLSync(url, username, password);
-
+  if (reqHost.indexOf('api.m.jd.com') > -1) {
+    // 京东wskey 
+    await wskey(ql);
+  }
   if (reqHost.indexOf('next.gacmotor.com') > -1) {
     // 广汽传祺 
     await gqcq(ql);
@@ -49,6 +52,13 @@ const force_update = $.getData("@ql.force_update") || false;
 })()
   .catch((e) => ($.logErr(e)))
   .finally(() => $.done());
+
+async function wskey(ql) {
+  const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
+  const wskey = extractCookieValue(ck, 'wskey')
+  const up = await StoreWskey(wskey)
+  if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
+}
 
 async function gqcq(ql) {
   const gqcqAccount = $request.headers['apptoken'];
@@ -125,7 +135,23 @@ function extractCookieValue(cookieString, key) {
   return result;
 }
 
+async function StoreWskey(value) {
+  let storeValue = $.getData('@ql.JD_WSCK') || '';
 
+
+  return new Promise((resolve) => {
+    if (!storeValue) {
+      return resolve(false);
+    }
+    const wskey = extractCookieValue(storeValue, 'wskey')
+    const pin = extractCookieValue(storeValue, 'pin')
+    if (wskey != value) {
+      $.setData(`${pin}${value}`, '@ql.JD_WSCK');
+      return resolve(true);
+    }
+    return resolve(false);
+  })
+}
 async function Store(key, value) {
   let storeValue = $.getData(`@ql.${key}`) || '';
 
@@ -165,28 +191,19 @@ class Mutex {
 
   lock() {
     return new Promise((resolve, _reject) => {
-      if (!this._locked) {
-        this._locked = true;
-        resolve({
-          unlock: () => {
-            this._locked = false;
-          },
-        });
-      } else {
-        const waitForUnlock = () => {
-          if (!this._locked) {
-            this._locked = true;
-            resolve({
-              unlock: () => {
-                this._locked = false;
-              },
-            });
-          } else {
-            setTimeout(waitForUnlock, 0);
-          }
-        };
-        waitForUnlock();
-      }
+      const tryLock = () => {
+        if (!this._locked) {
+          this._locked = true;
+          resolve({
+            unlock: () => {
+              this._locked = false;
+            },
+          });
+        } else {
+          setTimeout(tryLock, 0);
+        }
+      };
+      tryLock();
     });
   }
 }
@@ -283,23 +300,17 @@ function QLSync(url, username, password) {
           await this.updateToken();
         }
         await this.updateCk();
-        lock.unlock();
-        return Promise.resolve();
       } catch (error) {
         if (error == "UnauthorizedError") {
-          try {
-            await this.updateToken();
-            await this.updateCk();
-            lock.unlock();
-            return Promise.resolve();
-          } catch (e) {
-            lock.unlock();
-            return Promise.reject(e);
-          }
+          await this.updateToken();
+          await this.updateCk();
+        } else {
+          lock.unlock();
+          throw error;
         }
-        lock.unlock();
-        return Promise.reject(error);
       }
+      lock.unlock();
+      return Promise.resolve();
     }
   })(url, username, password)
 }
