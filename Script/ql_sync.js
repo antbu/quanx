@@ -52,7 +52,7 @@ const force_update = $.getData("@ql.force_update") || false;
 
 async function gqcq(ql) {
   const gqcqAccount = $request.headers['apptoken'];
-  const up = await Store1('gqcqAccount', gqcqAccount)
+  const up = await Store1('gqcqCookie', gqcqAccount)
   if (up || force_update) await ql.setQlCookie('gqcqCookie', '广汽传祺');
 }
 
