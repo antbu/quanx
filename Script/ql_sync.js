@@ -14,7 +14,10 @@ const force_update = $.getData("@ql.force_update") || false;
   const reqHost = $request.headers.Host;
   const ql = new QLSync(url, username, password);
 
-
+  if (reqHost.indexOf('next.gacmotor.com') > -1) {
+    // 广汽传祺 
+    await gqcq(ql);
+  }
   if (reqHost.indexOf('tmuyun.com') > -1) {
     // 今日越城
     await jryc(ql);
@@ -46,6 +49,12 @@ const force_update = $.getData("@ql.force_update") || false;
 })()
   .catch((e) => ($.logErr(e)))
   .finally(() => $.done());
+
+async function gqcq(ql) {
+  const gqcqAccount = $request.headers['apptoken'];
+  const up = await Store1('gqcqAccount', gqcqAccount)
+  if (up || force_update) await ql.setQlCookie('gqcqCookie', '广汽传祺');
+}
 
 async function jryc(ql) {
   const jrycAccount = $request.headers['X-SESSION-ID'];

@@ -13,6 +13,7 @@
         "@ql.password",
         "@ql.force_update",
         "@ql.token",
+        "@ql.gqcqCookie",
         "@ql.jrycAccount",
         "@ql.sfsyUrl",
         "@ql.meituanCookie",
@@ -47,7 +48,9 @@
           "type": "boolean"
         }
       ],
-      "icons": ["https://qn.whyour.cn/logo.png"],
+      "icons": [
+        "https://qn.whyour.cn/logo.png"
+      ],
       "author": "@antbu",
       "descs_html": [
         "啦啦啦啦啦"
