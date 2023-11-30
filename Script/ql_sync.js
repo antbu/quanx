@@ -223,6 +223,7 @@ class Mutex {
 }
 
 const mutex = new Mutex();
+
 function QLSync(url, username, password) {
   return new (class {
     constructor(url, username, password) {
@@ -233,6 +234,23 @@ function QLSync(url, username, password) {
       this.ckName = "";
       this.remarks = "";
       this.ckValue = "";
+
+      this.checkToken();
+    }
+
+    async checkToken() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const time = new Date().getTime()
+          const resp = await this.ajax("GET", `${this.url}/api/crons?t=${time}`);
+          if (resp.code == 401) {
+            await this.updateToken();
+          }
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      });
     }
 
     async ajax(method, url, data, auth = true) {
@@ -253,12 +271,8 @@ function QLSync(url, username, password) {
         }
         $task.fetch(options).then(
           (resp) => {
-            const { statusCode, body } = $.toObj(resp, resp);
-            if (statusCode == 200) {
-              resolve($.toObj(body, body));
-            } else {
-              reject(body?.message);
-            }
+            const { body } = $.toObj(resp, resp);
+            resolve(body);
           },
           (err) => reject(err)
         );
