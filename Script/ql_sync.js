@@ -242,7 +242,7 @@ function QLSync(url, username, password) {
         try {
           const time = new Date().getTime()
           const resp = await this.ajax("GET", `${this.url}/api/crons?t=${time}`);
-          if (resp.code == 401) {
+          if (resp.data.code == 401) {
             await this.updateToken();
           }
           resolve();
