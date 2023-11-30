@@ -69,6 +69,7 @@ const nemeList = [
 async function wskey(ql) {
   const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
   const wskey = extractCookieValue(ck, 'wskey')
+  if (!wskey) return;
   const up = await StoreWskey(wskey)
   if (up || force_update) await ql.setQlCookie('JD_WSCK', '京东WSCK');
 }
