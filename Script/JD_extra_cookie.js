@@ -64,12 +64,15 @@ async function GetCookie() {
             const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
             $.write(cacheValue, CacheKey);
 
-            $.notify(
-                "用户名: " + userName,
-                "",
-                tipPrefix + CookieName + "Cookie成功 🎉",
-                { "update-pasteboard": CookieValue }
+            return console.log(
+                "用户名: " + DecodeName + tipPrefix + CookieName + "Cookie成功 🎉"
             );
+            // return $.notify(
+            //     "用户名: " + DecodeName,
+            //     "",
+            //     tipPrefix + CookieName + "Cookie成功 🎉",
+            //     { "update-pasteboard": CookieValue }
+            // );
         } else {
             console.log("ck 写入失败，未找到相关 ck");
         }
@@ -104,9 +107,10 @@ async function GetCookie() {
                 text = `修改`;
             }
             $.write(JSON.stringify(CookiesData, null, `\t`), CacheKey);
-            return $.notify("用户名: " + username, "", `${text}wskey成功 🎉`, {
-                "update-pasteboard": code,
-            });
+            return console.log("用户名: " + username + `${text}wskey成功 🎉`);
+            // return $.notify("用户名: " + username, "", `${text}wskey成功 🎉`, {
+            //     "update-pasteboard": code,
+            // });
         }
     } else {
         console.log("未匹配到相关信息，退出抓包");
