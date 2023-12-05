@@ -48,6 +48,16 @@
       "author": "@antbu",
       "descs_html": [
         "啦啦啦啦啦"
+      ],
+      "scripts": [
+        {
+          "name": "BoxJS同步到青龙(京东 Ck)",
+          "script": "https://raw.githubusercontent.com/antbu/quanx/main/Script/ql_cookie_sync.js"
+        },
+        {
+          "name": "BoxJS Env同步到青龙",
+          "script": "https://raw.githubusercontent.com/antbu/quanx/main/Script/ql_env_sync.js"
+        }
       ]
     }
   ]
