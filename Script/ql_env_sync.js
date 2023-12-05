@@ -33,8 +33,9 @@ async function getScriptUrl() {
             await $.ql.delete(res.data.map((item) => item.id));
             $.log('清空 env');
         }
-        addData.push({ name, value: $.read(name) });
+        addData.push({ name, value: $.read(`#${name}`) });
     }
+    $.log(更新, JSON.stringify(addData));
 
     if (addData.length) await $.ql.add(addData);
 
