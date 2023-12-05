@@ -38,8 +38,11 @@ async function sfsy() {
 }
 async function meituan() {
     const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
-    const token = extractCookieValue(ck, 'token')
-    await Store1('meituanCookie', token)
+    const match = ck.match(/token=(.*?);/);
+    if (match && match.length > 1) {
+        const tokenValue = match[1];
+        await Store1('meituanCookie', tokenValue)
+    }
 }
 async function ele() {
     const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
