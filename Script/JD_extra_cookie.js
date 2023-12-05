@@ -7,6 +7,7 @@ hostname = api.m.jd.com
 
 const $ = new API("ql", false);
 const CacheKey = "#CookiesJD";
+const body = $response.body;
 
 function getUsername(ck) {
     if (!ck) return "";
@@ -20,7 +21,7 @@ function getUsername(ck) {
         console.log(e);
     })
     .finally(() => {
-        $.done();
+        $.done({ body });
     });
 
 function getCache() {
@@ -29,17 +30,14 @@ function getCache() {
 
 async function GetCookie() {
     const CV = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
-    if (
-        ($request.url.indexOf("GetJDUserInfoUnion") > -1 &&
-            $request.url.indexOf("isLogin") === -1) ||
-        $request.url.indexOf("openUpgrade") > -1
-    ) {
-        $.notify('测试', '', `测试Cookie\n： ${JSON.stringify(CV)}`)
 
+    if ($request.url.indexOf("basicConfig") > -1) {
         if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
+
             const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
+
             if (CookieValue.indexOf("fake_") > -1) return console.log("异常账号");
-            const DecodeName = getUsername(CookieValue);
+            const userName = getUsername(CookieValue);
             let updateIndex = null,
                 CookieName,
                 tipPrefix;
@@ -48,7 +46,7 @@ async function GetCookie() {
             const updateCookiesData = [...CookiesData];
 
             CookiesData.forEach((item, index) => {
-                if (getUsername(item.cookie) === DecodeName) updateIndex = index;
+                if (getUsername(item.userName) === userName) updateIndex = index;
             });
 
             if (updateIndex !== null) {
@@ -57,7 +55,7 @@ async function GetCookie() {
                 tipPrefix = "更新京东";
             } else {
                 updateCookiesData.push({
-                    userName: DecodeName,
+                    userName: userName,
                     cookie: CookieValue,
                 });
                 CookieName = "【账号" + updateCookiesData.length + "】";
@@ -67,7 +65,7 @@ async function GetCookie() {
             $.write(cacheValue, CacheKey);
 
             $.notify(
-                "用户名: " + DecodeName,
+                "用户名: " + userName,
                 "",
                 tipPrefix + CookieName + "Cookie成功 🎉",
                 { "update-pasteboard": CookieValue }
@@ -76,7 +74,6 @@ async function GetCookie() {
             console.log("ck 写入失败，未找到相关 ck");
         }
     } else if ($request.headers && $request.url.indexOf("newUserInfo") > -1) {
-        $.notify('测试', '', `测试Cookie\n： ${JSON.stringify(CV)}`)
         if (CV.match(/wskey=([^=;]+?);/)[1]) {
             const wskey = CV.match(/wskey=([^=;]+?);/)[1];
             console.log($response);
