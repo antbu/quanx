@@ -31,14 +31,10 @@ async function getScriptUrl() {
         const res = await $.ql.select(name);
         if (res.data.length) {
             await $.ql.delete(res.data.map((item) => item.id));
-            $.log('清空 env');
         }
         const value = await $.read(`#${name}`);
-        $.log("更新", JSON.stringify(value));
         addData.push({ name, value });
     }
-    $.log("更新", JSON.stringify(addData));
-
     if (addData.length) await $.ql.add(addData);
 
 
