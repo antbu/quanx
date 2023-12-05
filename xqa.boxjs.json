@@ -9,10 +9,8 @@
       "name": "青龙cookie同步",
       "keys": [
         "@ql.url",
-        "@ql.username",
-        "@ql.password",
-        "@ql.force_update",
-        "@ql.token",
+        "@ql.client_id",
+        "@ql.client_secret",
         "@ql.JD_WSCK",
         "@ql.gqcqCookie",
         "@ql.jrycAccount",
@@ -31,22 +29,16 @@
           "type": "text"
         },
         {
-          "id": "@ql.username",
+          "id": "@ql.client_id",
           "name": "账号",
           "val": "",
           "type": "text"
         },
         {
-          "id": "@ql.password",
+          "id": "@ql.client_secret",
           "name": "密码",
           "val": "",
           "type": "text"
-        },
-        {
-          "id": "@ql.force_update",
-          "name": "强制更新",
-          "val": false,
-          "type": "boolean"
         }
       ],
       "icons": [
