@@ -29,12 +29,13 @@ function getCache() {
 
 async function GetCookie() {
     const CV = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
-    $.notify('测试', '', `测试： ${JSON.stringify(CV)}`)
     if (
         ($request.url.indexOf("GetJDUserInfoUnion") > -1 &&
             $request.url.indexOf("isLogin") === -1) ||
         $request.url.indexOf("openUpgrade") > -1
     ) {
+        $.notify('测试', '', `测试Cookie\n： ${JSON.stringify(CV)}`)
+
         if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
             const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
             if (CookieValue.indexOf("fake_") > -1) return console.log("异常账号");
@@ -75,6 +76,7 @@ async function GetCookie() {
             console.log("ck 写入失败，未找到相关 ck");
         }
     } else if ($request.headers && $request.url.indexOf("newUserInfo") > -1) {
+        $.notify('测试', '', `测试Cookie\n： ${JSON.stringify(CV)}`)
         if (CV.match(/wskey=([^=;]+?);/)[1]) {
             const wskey = CV.match(/wskey=([^=;]+?);/)[1];
             console.log($response);
