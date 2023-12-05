@@ -29,7 +29,7 @@ function getCache() {
 
 async function GetCookie() {
     const CV = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
-
+    $.notify('测试', '', `测试： ${JSON.stringify(CV)}`)
     if (
         ($request.url.indexOf("GetJDUserInfoUnion") > -1 &&
             $request.url.indexOf("isLogin") === -1) ||
