@@ -13,14 +13,10 @@
         "@ql.client_secret",
         "@ql.client_secret",
         "CookiesJD",
-        "@ql.gqcqCookie",
-        "@ql.jrycAccount",
-        "@ql.sfsyUrl",
-        "@ql.meituanCookie",
-        "@ql.elmCookie",
-        "@ql.ylnn",
-        "@ql.mxbc_data",
-        "@ql.lbvip"
+        "gqcqCookie",
+        "sfsyUrl",
+        "meituanCookie",
+        "elmCookie"
       ],
       "settings": [
         {
