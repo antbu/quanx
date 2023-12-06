@@ -19,6 +19,10 @@ const $ = new API("ql", false);
         // 饿了么
         await ele();
     }
+    if (reqHost.indexOf('www.deppon.com') > -1) {
+        // 德邦快递
+        await deppon();
+    }
 })()
     .catch((e) => ($.logErr(e)))
     .finally(() => $.done());
@@ -51,6 +55,15 @@ async function ele() {
     if (!!sid && !!cookie2) {
         const elmCookie = `${sid}${cookie2}grabCoupon=1;`
         await Store1('elmCookie', elmCookie)
+    }
+}
+
+async function deppon() {
+    const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
+    const match = ck.match(/ECO_TOKEN=(.*?);/);
+    if (match && match.length > 1) {
+        const tokenValue = match[1];
+        await Store1('dbkdCookie', tokenValue)
     }
 }
 
