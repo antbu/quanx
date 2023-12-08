@@ -82,7 +82,7 @@ async function GetCookie() {
             console.log($response);
             const respBody = JSON.parse($response.body);
             const pin = respBody.userInfoSns.unickName;
-            const code = `wskey=${wskey};pt_pin=${pin};`;
+            const code = `pin=${pin};wskey=${wskey};`;
 
             const username = getUsername(code);
             const CookiesData = getCache();
@@ -99,11 +99,11 @@ async function GetCookie() {
             if (updateIndex === false) {
                 CookiesData.push({
                     userName: username,
-                    wskey: wskey,
+                    wskey: code,
                 });
                 text = `新增`;
             } else {
-                CookiesData[updateIndex].wskey = wskey;
+                CookiesData[updateIndex].wskey = code;
                 text = `修改`;
             }
             $.write(JSON.stringify(CookiesData, null, `\t`), CacheKey);

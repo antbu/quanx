@@ -46,9 +46,9 @@ async function getScriptUrl() {
                 name: 'JD_WSCK',
                 remarks: 'JD_WSCK',
                 value:
-                    jd_cookie.wskey.indexOf('pt_pin') !== -1
+                    jd_cookie.wskey.indexOf('pin=') !== -1
                         ? jd_cookie.wskey
-                        : `${jd_cookie.wskey}pt_pin=${encodeURI(username)};`,
+                        : `pin=${encodeURI(username)};${jd_cookie.wskey};`,
             });
         }
     }
