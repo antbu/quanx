@@ -3,10 +3,10 @@ const $ = new API("ql", false);
 
 !(async () => {
     const reqHost = $request.headers.Host;
-    if (reqHost.indexOf('next.gacmotor.com') > -1) {
-        // 广汽传祺 
-        await gqcq();
-    }
+    // if (reqHost.indexOf('next.gacmotor.com') > -1) {
+    //     // 广汽传祺 
+    //     await gqcq();
+    // }
     if (reqHost.indexOf('sf-express.com') > -1) {
         // 顺丰速运
         await sfsy();
