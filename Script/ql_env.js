@@ -7,10 +7,10 @@ const $ = new API("ql", false);
     //     // 广汽传祺 
     //     await gqcq();
     // }
-    if (reqHost.indexOf('sf-express.com') > -1) {
-        // 顺丰速运
-        await sfsy();
-    }
+    // if (reqHost.indexOf('sf-express.com') > -1) {
+    //     // 顺丰速运
+    //     await sfsy();
+    // }
     if (reqHost.indexOf('meituan.com') > -1) {
         // 美团
         await meituan();

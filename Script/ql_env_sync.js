@@ -7,8 +7,6 @@ const $ = new API('ql', true);
 const title = '🐉 通知提示';
 
 const nemeList = [
-    'gqcqCookie',
-    'sfsyUrl',
     'meituanCookie',
     'elmCookie',
     'dbkdCookie',
