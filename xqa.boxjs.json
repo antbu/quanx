@@ -135,10 +135,5 @@
       ],
       "script": "https://raw.githubusercontent.com/antbu/quanx/main/Task/yundong.js"
     }
-  ],
-  "task": [
-    {
-      "config": "0 8 * * * https://raw.githubusercontent.com/antbu/quanx/main/Task/yundong.js, tag=一起吗, img-url=https://raw.githubusercontent.com/NobyDa/mini/master/Color/bahamutGame.png, enabled=true"
-    }
   ]
 }
