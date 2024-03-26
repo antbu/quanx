@@ -89,14 +89,13 @@ $.http = HTTP({
             $.log(`预定场地: ${$.ids.join(',')}`);
             $.log(`开始时间: ${$.fieldStartTimes.join(',')}`);
             $.log(`结束时间: ${$.fieldEndTimes.join(',')}`);
-            $.notify
             await orderLimit();
             await confirmOrder();
             await orderPlace();
             $.notify(
-                "老体预定",
-                `预定成功`,
-                `开始时间: ${$.fieldStartTimes.join(',')}\n结束时间: ${$.fieldEndTimes.join(',')}`
+                "预定成功",
+                "",
+                `日期: ${date}\n开始时间: ${$.fieldStartTimes.join(',')}\n结束时间: ${$.fieldEndTimes.join(',')}`
             );
             // 跳出循环
             break;
