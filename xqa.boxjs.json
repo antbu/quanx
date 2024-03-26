@@ -53,6 +53,92 @@
           "script": "https://raw.githubusercontent.com/antbu/quanx/main/Script/ql_env_sync.js"
         }
       ]
+    },
+    {
+      "id": "yundong",
+      "name": "一起吗",
+      "descs_html": [],
+      "keys": [
+        "@老体预定.sportId",
+        "@老体预定.departId",
+        "@老体预定.token",
+        "@老体预定.unitPrice",
+        "@老体预定.time"
+      ],
+      "settings": [
+        {
+          "id": "@老体预定.sportId",
+          "name": "sportId",
+          "val": "",
+          "type": "text",
+          "placeholder": "",
+          "desc": ""
+        },
+        {
+          "id": "@老体预定.departId",
+          "name": "departId",
+          "val": "",
+          "type": "text",
+          "placeholder": "",
+          "desc": ""
+        },
+        {
+          "id": "@老体预定.token",
+          "name": "token",
+          "val": "",
+          "type": "text",
+          "placeholder": "",
+          "desc": "小程序鉴权token"
+        },
+        {
+          "id": "@老体预定.unitPrice",
+          "name": "unitPrice",
+          "val": "",
+          "type": "number",
+          "placeholder": "默认15",
+          "desc": "单价"
+        },
+        {
+          "id": "@老体预定.time",
+          "name": "预定区间",
+          "val": "5",
+          "type": "radios",
+          "desc": "",
+          "items": [
+            {
+              "key": "1",
+              "label": "09:30 -- 11:30"
+            },
+            {
+              "key": "2",
+              "label": "13:30 -- 15:30"
+            },
+            {
+              "key": "3",
+              "label": "14:30 -- 16:30"
+            },
+            {
+              "key": "4",
+              "label": "15:30 -- 17:30"
+            },
+            {
+              "key": "5",
+              "label": "19:30 --- 21:30"
+            }
+          ]
+        }
+      ],
+      "author": "coffee",
+      "repo": "https://github.com/antbu/quanx/tree/main/Task",
+      "icons": [
+        "https://qn.whyour.cn/logo.png"
+      ],
+      "script": "https://raw.githubusercontent.com/antbu/quanx/main/Task/yundong.js"
+    }
+  ],
+  "task": [
+    {
+      "config": "0 8 * * * https://raw.githubusercontent.com/antbu/quanx/main/Task/yundong.js, tag=一起吗, img-url=https://raw.githubusercontent.com/NobyDa/mini/master/Color/bahamutGame.png, enabled=true"
     }
   ]
 }
