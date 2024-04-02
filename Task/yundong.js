@@ -63,7 +63,9 @@ $.http = HTTP({
     const data = await getFieldList();
     const fieldList = data[0].fieldList;
 
-    const order = Array.from({ length: 8 }, (_, i) => i).sort(() => Math.random() - 0.5);
+    // const order = Array.from({ length: 8 }, (_, i) => i).sort(() => Math.random() - 0.5);
+    const order1 = Array.from({ length: 6 }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+    const order = [...order1, 0, 7]
 
     for (let i = 0; i < order.length; i++) {
         const current = order[i];
