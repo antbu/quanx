@@ -64,6 +64,14 @@ $.http = HTTP({
         return;
     }
     const data = await getFieldList();
+    if (data.length === 0) {
+        $.notify(
+            "老体预定",
+            "❌ 无法获取场地信息",
+            "请检查sportId和departId是否正确"
+        );
+        return;
+    }
     const fieldList = data[0].fieldList;
 
     // const order = Array.from({ length: 8 }, (_, i) => i).sort(() => Math.random() - 0.5);
@@ -94,16 +102,25 @@ $.http = HTTP({
             $.log(`预定场地: ${$.ids.join(',')}`);
             $.log(`开始时间: ${$.fieldStartTimes.join(',')}`);
             $.log(`结束时间: ${$.fieldEndTimes.join(',')}`);
-            await orderLimit();
-            await confirmOrder();
-            await orderPlace();
-            $.notify(
-                "预定成功",
-                "",
-                `日期: ${date}\n开始时间: ${$.fieldStartTimes.join(',')}\n结束时间: ${$.fieldEndTimes.join(',')}`
-            );
-            // 跳出循环
-            break;
+            if (!(await orderLimit())) {
+                $.log(`第${current + 1}个场地预定失败`);
+                continue;
+            }
+            if (!(await confirmOrder())) {
+                $.log(`第${current + 1}个场地预定失败`);
+                continue;
+            }
+            if (await orderPlace()) {
+                $.notify(
+                    "老体预定",
+                    "✅ 预定成功",
+                    `日期: ${date}\n开始时间: ${$.fieldStartTimes.join(',')}\n结束时间: ${$.fieldEndTimes.join(',')}`
+                );
+                break;
+            } else {
+                $.log(`第${current + 1}个场地预定失败`);
+                continue;
+            }
         }
     }
 
@@ -118,6 +135,7 @@ $.http = HTTP({
     .finally(() => $.done());
 
 async function getFieldList() {
+    let result = [];
     const params = new URLSearchParams({
         sportId: sportId,
         departId: departId,
@@ -128,16 +146,19 @@ async function getFieldList() {
     if (resp.statusCode == 200) {
         const data = JSON.parse(resp.body);
         if (data.code === 900) {
-            return data.data;
+            result = data.data;
         } else {
             $.log(data.msg);
-            throw new Error(data.msg);
+            result = [];
         }
     } else {
-        throw new Error("请求失败");
+        $.log("getFieldList请求失败");
+        result = [];
     }
+    return result;
 }
 async function orderLimit() {
+    let result = false;
     const params = new URLSearchParams({
         fieldDetailIdsList: $.ids.join(','),
         fieldDate: date
@@ -147,17 +168,20 @@ async function orderLimit() {
     if (resp.statusCode == 200) {
         const data = JSON.parse(resp.body);
         $.log(data);
-        if (data.code === 900) {
-            return data.data;
+        if (data.code === 900 && data.data?.canOrder) {
+            result = true;
         } else {
             $.log(data.msg);
-            throw new Error(data.msg);
+            result = false;
         }
     } else {
-        throw new Error("请求失败");
+        $.log("orderLimit请求失败");
+        result = false;
     }
+    return result;
 }
 async function confirmOrder() {
+    let result = false;
     const params = new URLSearchParams({
         venueid: departId,
         price: `${Number.parseFloat(unitPrice * $.ids.length).toFixed(2)}`,
@@ -175,17 +199,20 @@ async function confirmOrder() {
         const data = JSON.parse(resp.body);
         $.log(data);
         if (data.code === 900) {
-            return data.data;
+            result = true;
         } else {
             $.log(data.msg);
-            throw new Error(data.msg);
+            result = false;
         }
     } else {
-        throw new Error("请求失败");
+        $.log("confirmOrder请求失败");
+        result = false;
     }
+    return result;
 }
 
 async function orderPlace() {
+    let result = false;
     const postData = {
         "fieldorder": {
             "date": date,
@@ -209,14 +236,16 @@ async function orderPlace() {
         const data = JSON.parse(resp.body);
         $.log(data);
         if (data.code === 900) {
-            return data.data;
+            result = true;
         } else {
             $.log(data.msg);
-            throw new Error(data.msg);
+            result = false;
         }
     } else {
-        throw new Error("请求失败");
+        $.log("orderPlace请求失败");
+        result = false;
     }
+    return result;
 }
 
 /**
