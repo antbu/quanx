@@ -94,7 +94,7 @@ async function xclx() {
     const match = ck.match(/cticket=(.*?);/);
     if (match && match.length > 1) {
         const tokenValue = match[1];
-        await Store1('xclxCookie', tokenValue)
+        await Store1('xclxCookie', tokenValue, '\n')
     }
 }
 
