@@ -11,17 +11,30 @@ const $ = new API("ql", false);
     //     // 顺丰速运
     //     await sfsy();
     // }
+
+    // if (reqHost.indexOf('ele.me') > -1) {
+    //     // 饿了么
+    //     await ele();
+    // }
     if (reqHost.indexOf('meituan.com') > -1) {
         // 美团
         await meituan();
     }
-    if (reqHost.indexOf('ele.me') > -1) {
-        // 饿了么
-        await ele();
-    }
     if (reqHost.indexOf('www.deppon.com') > -1) {
         // 德邦快递
         await deppon();
+    }
+    if (reqHost.indexOf('webapi.qmai.cn') > -1) {
+        // 霸王茶姬
+        await bwcj();
+    }
+    if (reqHost.indexOf('qiehuang-apig.xiaoyisz.com') > -1) {
+        // 统一茄皇三期
+        await tyqh();
+    }
+    if (reqHost.indexOf('m.ctrip.com') > -1) {
+        // 携程旅行
+        await xclx();
     }
 })()
     .catch((e) => ($.logErr(e)))
@@ -29,17 +42,27 @@ const $ = new API("ql", false);
 
 
 
-async function gqcq() {
-    const gqcqAccount = $request.headers['apptoken'];
-    await Store1('gqcqCookie', gqcqAccount)
-}
+// async function gqcq() {
+//     const gqcqAccount = $request.headers['apptoken'];
+//     await Store1('gqcqCookie', gqcqAccount)
+// }
 
 
-async function sfsy() {
-    const sfsyUrl = $request.url;
-    if (sfsyUrl.indexOf('source') == -1) return;
-    await Store('sfsyUrl', sfsyUrl)
-}
+// async function sfsy() {
+//     const sfsyUrl = $request.url;
+//     if (sfsyUrl.indexOf('source') == -1) return;
+//     await Store('sfsyUrl', sfsyUrl)
+// }
+
+// async function ele() {
+//     const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
+//     const sid = extractCookieValue(ck, 'SID')
+//     const cookie2 = extractCookieValue(ck, 'cookie2')
+//     if (!!sid && !!cookie2) {
+//         const elmCookie = `${sid}${cookie2}grabCoupon=1;`
+//         await Store1('elmCookie', elmCookie)
+//     }
+// }
 async function meituan() {
     const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
     const match = ck.match(/token=(.*?);/);
@@ -48,22 +71,30 @@ async function meituan() {
         await Store1('meituanCookie', tokenValue)
     }
 }
-async function ele() {
-    const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
-    const sid = extractCookieValue(ck, 'SID')
-    const cookie2 = extractCookieValue(ck, 'cookie2')
-    if (!!sid && !!cookie2) {
-        const elmCookie = `${sid}${cookie2}grabCoupon=1;`
-        await Store1('elmCookie', elmCookie)
-    }
-}
-
 async function deppon() {
     const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
     const match = ck.match(/ECO_TOKEN=(.*?);/);
     if (match && match.length > 1) {
         const tokenValue = match[1];
         await Store1('dbkdCookie', tokenValue)
+    }
+}
+async function bwcj() {
+    const token = $request.headers['Qm-User-Token'];
+    await Store1('bwcjCookie', token)
+}
+async function tyqh() {
+    const body = $request.body;
+    const pbody = JSON.parse(body);
+    const tyqhCookie = `${pbody.thirdId}#${pbody.wid}`;
+    await Store1('tyqhCookie', tyqhCookie)
+}
+async function xclx() {
+    const ck = `${$request.headers['Cookie'] || $request.headers['cookie']}`;
+    const match = ck.match(/cticket=(.*?);/);
+    if (match && match.length > 1) {
+        const tokenValue = match[1];
+        await Store1('xclxCookie', tokenValue)
     }
 }
 
@@ -97,6 +128,7 @@ async function Store(key, value) {
     })
 }
 
+// 分隔存储
 async function Store1(key, value, separate = "&") {
     const CacheKey = `#${key}`;
 

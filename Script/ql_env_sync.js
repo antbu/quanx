@@ -10,7 +10,6 @@ const title = '🐉 通知提示';
  * bwcjCookie 霸王茶姬
  * dbkdCookie 德邦快递
  * meituanCookie 美团
- * pupuCookie 朴朴超市
  * tyqhCookie 统一茄皇三期
  * xclxCookie 携程旅行
  */
@@ -19,7 +18,6 @@ const nemeList = [
     'bwcjCookie',
     'dbkdCookie',
     'meituanCookie',
-    'pupuCookie',
     'tyqhCookie',
     'xclxCookie'
 ]
